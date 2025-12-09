@@ -1,0 +1,14 @@
+iwakino:
+  world: world
+  1:
+    locations:
+      1:
+        x: 213
+        y: 64
+        z: 223
+    departures:
+      1:
+        name: IMR_Train_1
+        type: train
+        time: 125
+    style: j3normal

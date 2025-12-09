@@ -1,0 +1,4 @@
+name: InPIDS
+version: '1.0-SNAPSHOT'
+main: me.fiveave.inpids.main
+api-version: '1.19'

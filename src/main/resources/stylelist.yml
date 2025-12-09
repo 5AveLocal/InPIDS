@@ -1,0 +1,9 @@
+j3normal:
+  width: 3
+  height: 1
+  lines: [1, 2, 3]
+  loopinterval: 5
+  style:
+    1: "%type"
+    2: "%dest"
+    3: "%tmin 分鐘|%tmin min"
