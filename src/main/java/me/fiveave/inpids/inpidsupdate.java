@@ -133,13 +133,14 @@ public class inpidsupdate extends SignAction {
             int height = stylelist.dataconfig.getInt(pidsstyle + ".height");
             List<Integer> lines = stylelist.dataconfig.getIntegerList(pidsstyle + ".lines");
             int loopinterval = stylelist.dataconfig.getInt(pidsstyle + ".loopinterval");
-            int count = 0;
             // Get surrounding signs
             BlockFace leftbf = getLeftbf(bf);
-            for (int h = 0; h < height; h++) {
+            for (int count = 0; count < lines.size() * height; count++) {
+                int h = count / width;
                 for (int w = 0; w < width; w++) {
                     BlockState b2 = b.getRelative(leftbf, w).getRelative(BlockFace.DOWN, h).getState();
                     if (b2 instanceof Sign sign2) {
+                        // Variables
                         String onestyle = stylelist.dataconfig.getString(pidsstyle + ".style." + (h * width + w));
                         String trainname = stapidslist.dataconfig.getString(staplat + ".departures." + count + ".name");
                         int time = stapidslist.dataconfig.getInt(staplat + ".departures." + count + ".time");
@@ -148,16 +149,18 @@ public class inpidsupdate extends SignAction {
                         String[] type = Objects.requireNonNull(linetypelist.dataconfig.getString(linesys + ".type")).split("\\|");
                         statimelist stl = new statimelist(linesys);
                         String[] destination = stl.getStaname()[stl.getStaname().length - 1];
+                        // Language selector (by current time)
                         int langsize = destination.length;
                         int thislang = Math.toIntExact((System.currentTimeMillis() / 1000) % ((long) loopinterval * langsize) / langsize);
                         assert onestyle != null;
                         String onelangstyle = onestyle.split("\\|")[thislang];
+                        // Variable replacement
                         onelangstyle = onelangstyle.replace("%type", type[thislang])
                                 .replace("%line", line[thislang])
                                 .replace("%dest", destination[thislang])
                                 .replace("%tmin", String.valueOf(Math.round(time / 60.0)));
+                        // Set sign
                         sign2.setLine(lines.get(count / lines.size()), onelangstyle);
-                        count++;
                     }
                 }
             }
