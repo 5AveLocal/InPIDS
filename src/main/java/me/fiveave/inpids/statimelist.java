@@ -17,9 +17,10 @@ public class statimelist {
 
     // Initialize constructor
     statimelist(String name) {
-        file = new File(plugin.getDataFolder() + "statimelist\\" + name + ".csv");
+        file = new File(plugin.getDataFolder() + "\\statimelist\\" + name + ".csv");
         stacode = new String[0];
         staname = new String[0][0];
+        plat = new int[0];
         time = new int[0];
         readFile();
     }
@@ -44,11 +45,9 @@ public class statimelist {
     private void readFile() {
         try {
             BufferedReader br = new BufferedReader(new FileReader(file));
-            String header = br.readLine();
-            // Whole length - "code" - "plat" - "time"
-            int namesize = header.split(",").length - 3;
             String line;
             while ((line = br.readLine()) != null) {
+                int namesize = line.split(",").length - 3;
                 String[] linesplit = line.split(",");
                 String thiscode = linesplit[0];
                 String[] thisstaname = new String[namesize];
@@ -92,11 +91,16 @@ public class statimelist {
     public static int getTimeToStation(String trainname) {
         String linesys = trainlist.dataconfig.getString(trainname + ".linesys");
         String location = trainlist.dataconfig.getString(trainname + ".location");
+        int time = trainlist.dataconfig.getInt(trainname + ".time");
         statimelist stl = new statimelist(linesys);
         int currentstaindex = stl.getStaIndex(location);
         int totaltime = 0;
         for (int i = currentstaindex; i < stl.getStacode().length; i++) {
-            totaltime += stl.getTime()[i];
+            if (i == currentstaindex) {
+                totaltime += time;
+            } else {
+                totaltime += stl.getTime()[i];
+            }
         }
         return totaltime;
     }

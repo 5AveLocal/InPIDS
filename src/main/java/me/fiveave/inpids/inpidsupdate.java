@@ -14,6 +14,8 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
+import org.bukkit.block.data.type.WallSign;
+import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,9 +46,10 @@ public class inpidsupdate extends SignAction {
         if (cartevent.isAction(SignActionType.GROUP_ENTER, SignActionType.REDSTONE_ON) && cartevent.hasRailedMember() && cartevent.isPowered()) {
             // Get sign info
             String linesys = cartevent.getLine(2); // linesys includes both line name and train type
+            statimelist stl = new statimelist(linesys);
             String[] l3 = cartevent.getLine(3).split(" ");
             String location = l3[0]; // Location: station on linesys
-            int time = Integer.parseInt(l3[1]); // Time left in seconds
+            int time = l3.length > 1 ? Integer.parseInt(l3[1]) : stl.getTime()[stl.getStaIndex(location)]; // Time left in seconds
             // Update trainlist
             MinecartGroup mg = cartevent.getGroup();
             String trainname = mg.getProperties().getTrainName();
@@ -55,12 +58,11 @@ public class inpidsupdate extends SignAction {
             trainlist.dataconfig.set(trainname + ".time", time);
             trainlist.save();
             // For stations on list at and after location, update PIDS on the linesys
-            statimelist stl = new statimelist(linesys);
             String[] stacode = stl.getStacode();
             for (int i = stl.getStaIndex(location); i < stacode.length; i++) {
+                World world = Bukkit.getWorld(Objects.requireNonNull(stapidslist.dataconfig.getString(stacode[i] + ".world")));
                 // Station name + platform number
                 String staplat = stacode[i] + "." + stl.getPlat()[i];
-                World world = Bukkit.getWorld(Objects.requireNonNull(stapidslist.dataconfig.getString(stacode[i] + ".world")));
                 // Update PIDS list
                 updatePlatPidsList(staplat, trainname);
                 // Update PIDS display
@@ -75,18 +77,24 @@ public class inpidsupdate extends SignAction {
         ArrayList<deprec> depreclist = new ArrayList<>();
         int foundtrainindex = -1;
         String deppath = staplat + ".departures";
-        for (int dep : stapidslist.dataconfig.getIntegerList(deppath)) {
-            deprec dr = new deprec(staplat + ".departures." + dep);
-            depreclist.add(dr);
-            if (dr.getName().equals(trainname)) {
-                foundtrainindex = dep;
+        ConfigurationSection cs = stapidslist.dataconfig.getConfigurationSection(deppath);
+        if (cs != null) {
+            for (String dep : cs.getKeys(false)) {
+                deprec dr = new deprec(staplat + ".departures." + dep);
+                depreclist.add(dr);
+                if (dr.getName().equals(trainname)) {
+                    foundtrainindex = Integer.parseInt(dep);
+                }
             }
         }
         // Modify or add this train
         if (foundtrainindex != -1) {
             depreclist.get(foundtrainindex).setTime(getTimeToStation(trainname));
         } else {
-            depreclist.add(new deprec(staplat + ".departures." + depreclist.size()));
+            deprec dr = new deprec(staplat + ".departures." + depreclist.size());
+            dr.setName(trainname);
+            dr.setTime(getTimeToStation(trainname));
+            depreclist.add(dr);
         }
         // Sort records by arrival times
         ArrayList<deprec> newdepreclist = new ArrayList<>();
@@ -107,27 +115,27 @@ public class inpidsupdate extends SignAction {
 
     // Update all PIDS display on platform
     private void updatePlatPidsDisplay(String staplat, World w) {
-        String locpath = staplat + ".locations.";
-        for (int locindex : stapidslist.dataconfig.getIntegerList(locpath)) {
+        String locpath = staplat + ".locations";
+        for (String locindex : Objects.requireNonNull(stapidslist.dataconfig.getConfigurationSection(locpath)).getKeys(false)) {
             String indexpath = staplat + ".locations." + locindex;
+            String stylepath = indexpath + ".style";
+            // Get PIDS display style
+            String pidsstyle = stapidslist.dataconfig.getString(stylepath);
             int x = stapidslist.dataconfig.getInt(indexpath + ".x");
             int y = stapidslist.dataconfig.getInt(indexpath + ".y");
             int z = stapidslist.dataconfig.getInt(indexpath + ".z");
             Location loc = new Location(w, x, y, z);
-            updateSinglePidsDisplay(staplat, loc);
+            updateSinglePidsDisplay(staplat, loc, pidsstyle);
         }
     }
 
     // Update single PIDS display on platform
-    private void updateSinglePidsDisplay(String staplat, Location loc) {
-        // Get PIDS display style
-        String stylepath = staplat + ".style";
-        String pidsstyle = stapidslist.dataconfig.getString(stylepath);
+    private void updateSinglePidsDisplay(String staplat, Location loc, String pidsstyle) {
         Block b = loc.getBlock();
         BlockState bs = b.getState();
         if (bs instanceof Sign) {
-            org.bukkit.block.data.type.Sign sign1 = (org.bukkit.block.data.type.Sign) b.getBlockData();
-            BlockFace bf = sign1.getRotation();
+            WallSign sign1 = (WallSign) b.getBlockData();
+            BlockFace bf = sign1.getFacing();
             // Get data from stylelist.yml
             int width = stylelist.dataconfig.getInt(pidsstyle + ".width");
             int height = stylelist.dataconfig.getInt(pidsstyle + ".height");
@@ -143,24 +151,36 @@ public class inpidsupdate extends SignAction {
                         // Variables
                         String onestyle = stylelist.dataconfig.getString(pidsstyle + ".style." + (h * width + w));
                         String trainname = stapidslist.dataconfig.getString(staplat + ".departures." + count + ".name");
-                        int time = stapidslist.dataconfig.getInt(staplat + ".departures." + count + ".time");
-                        String linesys = trainlist.dataconfig.getString(trainname + ".linesys");
-                        String[] line = Objects.requireNonNull(linetypelist.dataconfig.getString(linesys + ".line")).split("\\|");
-                        String[] type = Objects.requireNonNull(linetypelist.dataconfig.getString(linesys + ".type")).split("\\|");
-                        statimelist stl = new statimelist(linesys);
-                        String[] destination = stl.getStaname()[stl.getStaname().length - 1];
-                        // Language selector (by current time)
-                        int langsize = destination.length;
-                        int thislang = Math.toIntExact((System.currentTimeMillis() / 1000) % ((long) loopinterval * langsize) / langsize);
-                        assert onestyle != null;
-                        String onelangstyle = onestyle.split("\\|")[thislang];
-                        // Variable replacement
-                        onelangstyle = onelangstyle.replace("%type", type[thislang])
-                                .replace("%line", line[thislang])
-                                .replace("%dest", destination[thislang])
-                                .replace("%tmin", String.valueOf(Math.round(time / 60.0)));
+                        // Display variables
+                        String dispstr;
+                        // If anything not found then set to blank
+                        try {
+                            int time = stapidslist.dataconfig.getInt(staplat + ".departures." + count + ".time");
+                            String linesys = trainlist.dataconfig.getString(trainname + ".linesys");
+                            String[] line = Objects.requireNonNull(linetypelist.dataconfig.getString(linesys + ".line")).split("\\|");
+                            String[] type = Objects.requireNonNull(linetypelist.dataconfig.getString(linesys + ".type")).split("\\|");
+                            statimelist stl = new statimelist(linesys);
+                            String[] destination = stl.getStaname()[stl.getStaname().length - 1];
+                            // Language selector (by current time)
+                            int langsize = destination.length;
+                            int thislang = Math.toIntExact((System.currentTimeMillis() / 1000) % ((long) loopinterval * langsize) / loopinterval);
+                            assert onestyle != null;
+                            String[] splitonelang = onestyle.split("\\|");
+                            String onelangstyle = splitonelang[Math.min(splitonelang.length - 1, thislang)];
+                            // Variable replacement
+                            dispstr = onelangstyle.replaceAll("%type", type[thislang])
+                                    .replaceAll("%line", line[thislang])
+                                    .replaceAll("%dest", destination[thislang])
+                                    .replaceAll("%tmin", String.valueOf(Math.round(time / 60.0)))
+                                    .replaceAll("\\\\&", "\\\\and") // To keep & type \&
+                                    .replaceAll("&", "§")
+                                    .replaceAll("\\\\and", "&");
+                        } catch (Exception e) {
+                            dispstr = "";
+                        }
                         // Set sign
-                        sign2.setLine(lines.get(count / lines.size()), onelangstyle);
+                        sign2.setLine(lines.get(count % lines.size()), dispstr);
+                        sign2.update();
                     }
                 }
             }
