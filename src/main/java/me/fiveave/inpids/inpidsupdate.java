@@ -3,6 +3,7 @@ package me.fiveave.inpids;
 import com.bergerkiller.bukkit.tc.controller.MinecartGroup;
 import com.bergerkiller.bukkit.tc.events.SignActionEvent;
 import com.bergerkiller.bukkit.tc.events.SignChangeActionEvent;
+import com.bergerkiller.bukkit.tc.properties.TrainProperties;
 import com.bergerkiller.bukkit.tc.signactions.SignAction;
 import com.bergerkiller.bukkit.tc.signactions.SignActionType;
 import com.bergerkiller.bukkit.tc.utils.SignBuildOptions;
@@ -50,15 +51,17 @@ public class inpidsupdate extends SignAction {
             String[] l3 = cartevent.getLine(3).split(" ");
             String location = l3[0]; // Location: station on linesys
             int time = l3.length > 1 ? Integer.parseInt(l3[1]) : stl.getTime()[stl.getStaIndex(location)]; // Time left in seconds
-            // Update trainlist
+            // Train info
             MinecartGroup mg = cartevent.getGroup();
             String trainname = mg.getProperties().getTrainName();
+            // TODO: Make methods to delete old / inexisting trains from trainlist and stapidslist, and update PIDS display
+            // Update trainlist
             trainlist.dataconfig.set(trainname + ".linesys", linesys);
             trainlist.dataconfig.set(trainname + ".location", location);
             trainlist.dataconfig.set(trainname + ".time", time);
             trainlist.save();
-            // For stations on list at and after location, update PIDS on the linesys
             String[] stacode = stl.getStacode();
+            // For stations on list at and after location, update PIDS on the linesys
             for (int i = stl.getStaIndex(location); i < stacode.length; i++) {
                 World world = Bukkit.getWorld(Objects.requireNonNull(stapidslist.dataconfig.getString(stacode[i] + ".world")));
                 // Station name + platform number
@@ -81,6 +84,14 @@ public class inpidsupdate extends SignAction {
         if (cs != null) {
             for (String dep : cs.getKeys(false)) {
                 deprec dr = new deprec(staplat + ".departures." + dep);
+                // If train does not exist then delete record
+                TrainProperties tp = TrainProperties.get(trainname);
+                if (tp == null || !tp.getHolder().isValid()) {
+                    if (trainname != null) {
+                        trainlist.dataconfig.set(trainname, null);
+                        continue;
+                    }
+                }
                 depreclist.add(dr);
                 if (dr.getName().equals(trainname)) {
                     foundtrainindex = Integer.parseInt(dep);
