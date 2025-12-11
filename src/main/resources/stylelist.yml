@@ -1,9 +1,22 @@
 j3normal:
   width: 3
   height: 1
-  lines: [1, 2, 3]
-  loopinterval: 5
+  lines:
+    - 1
+    - 2
+    - 3
+  loopinterval: 100
+  flashinterval: 5
   style:
-    0: "&f%type"
-    1: "&f%dest"
-    2: "&f%tmin 分鐘|&f%tmin min"
+    '0': '&f%type'
+    '1': '&f%dest'
+    '2': '&f%tmin'
+  messages:
+    trainarr: "&e列車即將到達|&eTrain arriving"
+    trainpass: "&e列車即將通過|&eTrain passing"
+    trainstopping: "&e停 車 中|&eStopping"
+    typepass: "&e通過|&ePass"
+    notinservice: "&e不載客列車|&eNot in Service"
+    terminus: "&e終點站|&eTerminus"
+    delay: "&c延遲|&cDelay"
+    min: "&f 分鐘|&f min"

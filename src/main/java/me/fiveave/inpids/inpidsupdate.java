@@ -3,7 +3,6 @@ package me.fiveave.inpids;
 import com.bergerkiller.bukkit.tc.controller.MinecartGroup;
 import com.bergerkiller.bukkit.tc.events.SignActionEvent;
 import com.bergerkiller.bukkit.tc.events.SignChangeActionEvent;
-import com.bergerkiller.bukkit.tc.properties.TrainProperties;
 import com.bergerkiller.bukkit.tc.signactions.SignAction;
 import com.bergerkiller.bukkit.tc.signactions.SignActionType;
 import com.bergerkiller.bukkit.tc.utils.SignBuildOptions;
@@ -16,18 +15,16 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.block.data.type.WallSign;
-import org.bukkit.configuration.ConfigurationSection;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static me.fiveave.inpids.deprec.updatePlatPidsList;
 import static me.fiveave.inpids.main.*;
-import static me.fiveave.inpids.statimelist.getTimeToStation;
 
 public class inpidsupdate extends SignAction {
 
-    private static BlockFace getLeftbf(BlockFace bf) {
+    static BlockFace getLeftbf(BlockFace bf) {
         return switch (bf) {
             case EAST -> BlockFace.NORTH;
             case NORTH -> BlockFace.WEST;
@@ -35,6 +32,10 @@ public class inpidsupdate extends SignAction {
             case SOUTH -> BlockFace.EAST;
             default -> bf;
         };
+    }
+
+    private static String[] getSplitStyleMsg(String pidsstyle, String path) {
+        return Objects.requireNonNull(stylelist.dataconfig.getString(pidsstyle + ".messages." + path)).split("\\|");
     }
 
     @Override
@@ -54,78 +55,39 @@ public class inpidsupdate extends SignAction {
             // Train info
             MinecartGroup mg = cartevent.getGroup();
             String trainname = mg.getProperties().getTrainName();
-            // TODO: Make methods to delete old / inexisting trains from trainlist and stapidslist, and update PIDS display
             // Update trainlist
             trainlist.dataconfig.set(trainname + ".linesys", linesys);
             trainlist.dataconfig.set(trainname + ".location", location);
             trainlist.dataconfig.set(trainname + ".time", time);
             trainlist.save();
-            String[] stacode = stl.getStacode();
-            // For stations on list at and after location, update PIDS on the linesys
-            for (int i = stl.getStaIndex(location); i < stacode.length; i++) {
-                World world = Bukkit.getWorld(Objects.requireNonNull(stapidslist.dataconfig.getString(stacode[i] + ".world")));
-                // Station name + platform number
-                String staplat = stacode[i] + "." + stl.getPlat()[i];
-                // Update PIDS list
-                updatePlatPidsList(staplat, trainname);
-                // Update PIDS display
-                updatePlatPidsDisplay(staplat, world);
+            // Start PIDS Clock Loop (if not yet started)
+            if (!pidsclock) {
+                pidsClockLoop();
+                pidsclock = true;
             }
         }
     }
 
-    // Modify and sort PIDS list data for a platform
-    private void updatePlatPidsList(String staplat, String trainname) {
-        // Get PIDS list, convert to record
-        ArrayList<deprec> depreclist = new ArrayList<>();
-        int foundtrainindex = -1;
-        String deppath = staplat + ".departures";
-        ConfigurationSection cs = stapidslist.dataconfig.getConfigurationSection(deppath);
-        if (cs != null) {
-            for (String dep : cs.getKeys(false)) {
-                deprec dr = new deprec(staplat + ".departures." + dep);
-                // If train does not exist then delete record
-                TrainProperties tp = TrainProperties.get(trainname);
-                if (tp == null || !tp.getHolder().isValid()) {
-                    if (trainname != null) {
-                        trainlist.dataconfig.set(trainname, null);
-                        continue;
-                    }
-                }
-                depreclist.add(dr);
-                if (dr.getName().equals(trainname)) {
-                    foundtrainindex = Integer.parseInt(dep);
-                }
+    void pidsClockLoop() {
+        for (String trainname : trainlist.dataconfig.getKeys(false)) {
+            String linesys = trainlist.dataconfig.getString(trainname + ".linesys");
+            statimelist stl = new statimelist(linesys);
+            for (int staindex = 0; staindex < stl.getStacode().length; staindex++) {
+                String stacode = stl.getStacode()[staindex];
+                int plat = stl.getPlat()[staindex];
+                World world = Bukkit.getWorld(Objects.requireNonNull(stapidslist.dataconfig.getString(stacode + ".world")));
+                // Update PIDS list
+                updatePlatPidsList(stacode, plat, trainname);
+                // Update PIDS display
+                updatePlatPidsDisplay(stacode, plat, world);
             }
         }
-        // Modify or add this train
-        if (foundtrainindex != -1) {
-            depreclist.get(foundtrainindex).setTime(getTimeToStation(trainname));
-        } else {
-            deprec dr = new deprec(staplat + ".departures." + depreclist.size());
-            dr.setName(trainname);
-            dr.setTime(getTimeToStation(trainname));
-            depreclist.add(dr);
-        }
-        // Sort records by arrival times
-        ArrayList<deprec> newdepreclist = new ArrayList<>();
-        while (!depreclist.isEmpty()) {
-            int minindex = getMinPidsRecIndex(depreclist);
-            newdepreclist.add(depreclist.get(minindex));
-            depreclist.remove(minindex);
-        }
-        // Update PIDS list
-        for (int dep = 0; dep < newdepreclist.size(); dep++) {
-            String pidspath = staplat + ".departures." + dep;
-            stapidslist.dataconfig.set(pidspath + ".name", newdepreclist.get(dep).getName());
-//                    stapidslist.dataconfig.set(pidspath + ".type", newdepreclist.get(dep).getType());
-            stapidslist.dataconfig.set(pidspath + ".time", newdepreclist.get(dep).getTime());
-        }
-        stapidslist.save();
+        Bukkit.getScheduler().runTaskLater(plugin, this::pidsClockLoop, 1);
     }
 
     // Update all PIDS display on platform
-    private void updatePlatPidsDisplay(String staplat, World w) {
+    void updatePlatPidsDisplay(String stacode, int plat, World w) {
+        String staplat = stacode + "." + plat;
         String locpath = staplat + ".locations";
         for (String locindex : Objects.requireNonNull(stapidslist.dataconfig.getConfigurationSection(locpath)).getKeys(false)) {
             String indexpath = staplat + ".locations." + locindex;
@@ -136,12 +98,13 @@ public class inpidsupdate extends SignAction {
             int y = stapidslist.dataconfig.getInt(indexpath + ".y");
             int z = stapidslist.dataconfig.getInt(indexpath + ".z");
             Location loc = new Location(w, x, y, z);
-            updateSinglePidsDisplay(staplat, loc, pidsstyle);
+            updateSinglePidsDisplay(stacode, plat, loc, pidsstyle);
         }
     }
 
     // Update single PIDS display on platform
-    private void updateSinglePidsDisplay(String staplat, Location loc, String pidsstyle) {
+    void updateSinglePidsDisplay(String stacode, int plat, Location loc, String pidsstyle) {
+        String staplat = stacode + "." + plat;
         Block b = loc.getBlock();
         BlockState bs = b.getState();
         if (bs instanceof Sign) {
@@ -152,6 +115,7 @@ public class inpidsupdate extends SignAction {
             int height = stylelist.dataconfig.getInt(pidsstyle + ".height");
             List<Integer> lines = stylelist.dataconfig.getIntegerList(pidsstyle + ".lines");
             int loopinterval = stylelist.dataconfig.getInt(pidsstyle + ".loopinterval");
+            int flashinterval = stylelist.dataconfig.getInt(pidsstyle + ".flashinterval");
             // Get surrounding signs
             BlockFace leftbf = getLeftbf(bf);
             for (int count = 0; count < lines.size() * height; count++) {
@@ -164,29 +128,45 @@ public class inpidsupdate extends SignAction {
                         String trainname = stapidslist.dataconfig.getString(staplat + ".departures." + count + ".name");
                         // Display variables
                         String dispstr;
-                        // If anything not found then set to blank
                         try {
                             int time = stapidslist.dataconfig.getInt(staplat + ".departures." + count + ".time");
                             String linesys = trainlist.dataconfig.getString(trainname + ".linesys");
                             String[] line = Objects.requireNonNull(linetypelist.dataconfig.getString(linesys + ".line")).split("\\|");
                             String[] type = Objects.requireNonNull(linetypelist.dataconfig.getString(linesys + ".type")).split("\\|");
                             statimelist stl = new statimelist(linesys);
-                            String[] destination = stl.getStaname()[stl.getStaname().length - 1];
+                            int terminusindex = stl.getStaname().length - 1;
+                            String[] destination = stl.getStaname()[terminusindex];
                             // Language selector (by current time)
                             int langsize = destination.length;
-                            int thislang = Math.toIntExact((System.currentTimeMillis() / 1000) % ((long) loopinterval * langsize) / loopinterval);
+                            int thislang = Math.toIntExact((System.currentTimeMillis() / 50) % ((long) loopinterval * langsize) / loopinterval);
+                            // Flash selector
+                            boolean thisflash = Math.toIntExact((System.currentTimeMillis() / 50) % ((long) flashinterval * 2) / flashinterval) == 0;
+                            // Language split
                             assert onestyle != null;
                             String[] splitonelang = onestyle.split("\\|");
                             String onelangstyle = splitonelang[Math.min(splitonelang.length - 1, thislang)];
                             // Variable replacement
-                            dispstr = onelangstyle.replaceAll("%type", type[thislang])
+                            int mtime = (int) (time / 60.0);
+                            boolean stop = stl.getStop()[stl.getStaIndex(stacode)];
+                            boolean atterminus = stl.getStacode()[terminusindex].equals(stacode);
+                            String dest = destination[thislang];
+                            String trainarr = getSplitStyleMsg(pidsstyle, "trainarr")[thislang];
+                            String trainpass = getSplitStyleMsg(pidsstyle, "trainpass")[thislang];
+                            String trainstopping = getSplitStyleMsg(pidsstyle, "trainstopping")[thislang];
+                            String typepass = getSplitStyleMsg(pidsstyle, "typepass")[thislang];
+                            String terminus = getSplitStyleMsg(pidsstyle, "terminus")[thislang];
+                            String notinservice = getSplitStyleMsg(pidsstyle, "notinservice")[thislang];
+                            String min = getSplitStyleMsg(pidsstyle, "min")[thislang];
+//                             String[] delay = Objects.requireNonNull(stylelist.dataconfig.getString(pidsstyle + ".messages.delay")).split("\\|");
+                            dispstr = onelangstyle.replaceAll("%type", atterminus ? notinservice : (stop ? type[thislang] : typepass))
                                     .replaceAll("%line", line[thislang])
-                                    .replaceAll("%dest", destination[thislang])
-                                    .replaceAll("%tmin", String.valueOf(Math.round(time / 60.0)))
+                                    .replaceAll("%dest", String.valueOf(!atterminus ? dest : terminus))
+                                    .replaceAll("%tmin", String.valueOf(mtime > 0 ? (mtime + min) : time == 0 ? trainstopping : (thisflash ? (stop ? trainarr : trainpass) : "")))
                                     .replaceAll("\\\\&", "\\\\and") // To keep & type \&
                                     .replaceAll("&", "§")
                                     .replaceAll("\\\\and", "&");
                         } catch (Exception e) {
+                            // If anything null then set to blank
                             dispstr = "";
                         }
                         // Set sign
@@ -212,16 +192,5 @@ public class inpidsupdate extends SignAction {
         return true;
     }
 
-    int getMinPidsRecIndex(ArrayList<deprec> pidsreclist) {
-        int index = -1;
-        int min = Integer.MAX_VALUE;
-        for (int i = 0; i < pidsreclist.size(); i++) {
-            int val = pidsreclist.get(i).getTime();
-            if (val < min) {
-                min = val;
-                index = i;
-            }
-        }
-        return index;
-    }
+
 }

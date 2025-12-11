@@ -5,3 +5,7 @@ api-version: '1.19'
 description: PIDS Plugin
 author: 5_AvenueLocal
 depend: [ Train_Carts ]
+commands:
+  inpids:
+    description: InPIDS Main Commands
+    usage: /inpids
