@@ -31,9 +31,9 @@ public class statimelist {
         String linesys = trainlist.dataconfig.getString(trainname + ".linesys");
         String location = trainlist.dataconfig.getString(trainname + ".location");
         int time = trainlist.dataconfig.getInt(trainname + ".time");
-        // -1 meaning train is null, or has already passed station
+        // Integer.MIN_VALUE meaning train is null, or has already passed station
         if (linesys == null) {
-            return -1;
+            return Integer.MIN_VALUE;
         }
         statimelist stl = new statimelist(linesys);
         int currentstaindex = stl.getStaIndex(location);
@@ -41,7 +41,7 @@ public class statimelist {
         int totaltime = 0;
         // Early return for target is previous of current
         if (targetstaindex < currentstaindex) {
-            return -1;
+            return Integer.MIN_VALUE;
         }
         for (int i = currentstaindex; i <= targetstaindex; i++) {
             totaltime += i == currentstaindex ? time : stl.getTime()[i];

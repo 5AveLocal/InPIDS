@@ -1,5 +1,5 @@
 name: InPIDS
-version: '1.0-SNAPSHOT'
+version: 0.1
 main: me.fiveave.inpids.main
 api-version: '1.19'
 description: PIDS Plugin

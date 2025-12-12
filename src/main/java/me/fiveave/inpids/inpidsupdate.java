@@ -81,7 +81,14 @@ public class inpidsupdate extends SignAction {
                 // Update PIDS display
                 updatePlatPidsDisplay(stacode, plat, world);
             }
+            // Subtract time (unused)
+//            if (Math.toIntExact((System.currentTimeMillis() / 50) % 20) == 0) {
+//                String timepath = trainname + ".time";
+//                trainlist.dataconfig.set(timepath, trainlist.dataconfig.getInt(timepath) - 1);
+//                trainlist.save();
+//            }
         }
+
         Bukkit.getScheduler().runTaskLater(plugin, this::pidsClockLoop, 1);
     }
 
@@ -161,7 +168,7 @@ public class inpidsupdate extends SignAction {
                             dispstr = onelangstyle.replaceAll("%type", atterminus ? notinservice : (stop ? type[thislang] : typepass))
                                     .replaceAll("%line", line[thislang])
                                     .replaceAll("%dest", String.valueOf(!atterminus ? dest : terminus))
-                                    .replaceAll("%tmin", String.valueOf(mtime > 0 ? (mtime + min) : time == 0 ? trainstopping : (thisflash ? (stop ? trainarr : trainpass) : "")))
+                                    .replaceAll("%tmin", String.valueOf(mtime > 0 ? (mtime + min) : time <= 0 ? trainstopping : (thisflash ? (stop ? trainarr : trainpass) : "")))
                                     .replaceAll("\\\\&", "\\\\and") // To keep & type \&
                                     .replaceAll("&", "§")
                                     .replaceAll("\\\\and", "&");

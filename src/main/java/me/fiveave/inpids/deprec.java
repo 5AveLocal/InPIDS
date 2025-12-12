@@ -31,7 +31,7 @@ public class deprec {
         if ((tp == null || !tp.getHolder().isValid()) && trainname != null) {
             trainlist.dataconfig.set(trainname, null);
             trainlist.save();
-            timetosta = -1;
+            timetosta = Integer.MIN_VALUE;
         }
         // Add trains into list if valid, and find if list contains this train
         ArrayList<deprec> depreclist = getDeprecList(trainname, staplat, timetosta);
@@ -91,7 +91,7 @@ public class deprec {
             for (String dep : cs.getKeys(false)) {
                 String pidspath = staplat + ".departures." + dep;
                 // If time to station is -1, do not add into list
-                if (timetosta == -1) {
+                if (timetosta == Integer.MIN_VALUE) {
                     stapidslist.dataconfig.set(pidspath, null);
                     stapidslist.save();
                     continue;
@@ -104,7 +104,7 @@ public class deprec {
                 depreclist.add(dr);
             }
         }
-        if (timetosta != -1) {
+        if (timetosta != Integer.MIN_VALUE) {
             // Modify or add this train
             if (foundtrainindex != -1) {
                 depreclist.get(foundtrainindex).setTime(timetosta);
