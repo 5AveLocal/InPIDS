@@ -42,10 +42,11 @@ public class deprec {
 
     static ArrayList<deprec> getNewDeprecList(ArrayList<deprec> depreclist) {
         ArrayList<deprec> newdepreclist = new ArrayList<>();
-        while (!depreclist.isEmpty()) {
+        int size = depreclist.size();
+        while (size > 0) {
             int minindex = getMinPidsRecIndex(depreclist);
             newdepreclist.add(depreclist.get(minindex));
-            depreclist.remove(minindex);
+            size--;
         }
         return newdepreclist;
     }
@@ -74,9 +75,10 @@ public class deprec {
     static void updatePidsList(ArrayList<deprec> newdepreclist, String staplat) {
         for (int dep = 0; dep < newdepreclist.size(); dep++) {
             String pidspath = staplat + ".departures." + dep;
-            stapidslist.dataconfig.set(pidspath + ".name", newdepreclist.get(dep).getName());
-//                    stapidslist.dataconfig.set(pidspath + ".type", newdepreclist.get(dep).getType());
-            stapidslist.dataconfig.set(pidspath + ".time", newdepreclist.get(dep).getTime());
+            deprec dr = newdepreclist.get(dep);
+            stapidslist.dataconfig.set(pidspath + ".name", dr.getName());
+//                    stapidslist.dataconfig.set(pidspath + ".type", dr.getType());
+            stapidslist.dataconfig.set(pidspath + ".time", dr.getTime());
         }
     }
 

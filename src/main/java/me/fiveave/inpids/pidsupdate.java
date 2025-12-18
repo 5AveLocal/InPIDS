@@ -73,13 +73,9 @@ public class pidsupdate {
                     String stylepath = indexpath + ".style";
                     // Get PIDS display style
                     String pidsstyle = stapidslist.dataconfig.getString(stylepath);
-                    if (pidsstyle == null) {
-                        continue;
-                    }
+                    if (pidsstyle == null) continue;
                     Location loc = stapidslist.dataconfig.getLocation(indexpath + ".pos");
-                    if (loc == null) {
-                        continue;
-                    }
+                    if (loc == null) continue;
                     updateSinglePidsDisplay(stacode, plat, loc, pidsstyle);
                 } catch (Exception ignored) {
                 }
