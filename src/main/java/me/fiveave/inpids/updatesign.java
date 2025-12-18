@@ -23,12 +23,20 @@ public class updatesign extends SignAction {
     @Override
     public void execute(SignActionEvent cartevent) {
         if (cartevent.isAction(SignActionType.GROUP_ENTER, SignActionType.REDSTONE_ON) && cartevent.hasRailedMember() && cartevent.isPowered()) {
+            // Train info
+            MinecartGroup mg = cartevent.getGroup();
+            String trainname = mg.getProperties().getTrainName();
             // Get sign info
             String linesys = cartevent.getLine(2); // linesys includes both line name and train type
             statimelist stl = new statimelist(linesys);
             String[] l3 = cartevent.getLine(3).split(" ");
             String location = l3[0]; // Location: station on linesys
+            String oldlocation = trainlist.dataconfig.getString(trainname + ".location");
             String stat = null; // Train status: drive / arr / stop
+            // If location is different then stat is "drive" by default
+            if (oldlocation != null && !oldlocation.equals(location)) {
+                stat = "drive";
+            }
             int time = Integer.MIN_VALUE; // Time left in seconds
             if (l3.length > 1) {
                 try {
@@ -39,9 +47,6 @@ public class updatesign extends SignAction {
             } else {
                 time = stl.getTime()[stl.getStaIndex(location)];
             }
-            // Train info
-            MinecartGroup mg = cartevent.getGroup();
-            String trainname = mg.getProperties().getTrainName();
             // Update trainlist
             trainlist.dataconfig.set(trainname + ".linesys", linesys);
             trainlist.dataconfig.set(trainname + ".location", location);
