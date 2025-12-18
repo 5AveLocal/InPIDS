@@ -18,7 +18,7 @@ public class statimelist {
 
     // Initialize constructor
     statimelist(String linesys) {
-        file = new File(plugin.getDataFolder() + "\\statimelist\\" + linesys + ".csv");
+        file = new File(plugin.getDataFolder() + "/statimelist/" + linesys + ".csv");
         stacode = new String[0];
         staname = new String[0][0];
         plat = new int[0];

@@ -35,22 +35,27 @@ public class pidsupdate {
             String linesys = trainlist.dataconfig.getString(trainname + ".linesys");
             statimelist stl = new statimelist(linesys);
             for (int staindex = 0; staindex < stl.getStacode().length; staindex++) {
-                String stacode = stl.getStacode()[staindex];
-                int plat = stl.getPlat()[staindex];
-                World world = Bukkit.getWorld(Objects.requireNonNull(stapidslist.dataconfig.getString(stacode + ".world")));
-                // Update PIDS list
-                updatePlatPidsList(stacode, plat, trainname);
-                // Update PIDS display
-                updatePlatPidsDisplay(stacode, plat, world);
+                try {
+                    String stacode = stl.getStacode()[staindex];
+                    int plat = stl.getPlat()[staindex];
+                    World world = Bukkit.getWorld(Objects.requireNonNull(stapidslist.dataconfig.getString(stacode + ".world")));
+                    // Update PIDS list
+                    updatePlatPidsList(stacode, plat, trainname);
+                    // Update PIDS display
+                    updatePlatPidsDisplay(stacode, plat, world);
+                } catch (Exception ignored) {
+                }
             }
             // Subtract time
             String timepath = trainname + ".time";
             int timenow = trainlist.dataconfig.getInt(timepath);
             if (timenow != 0 && Math.toIntExact((System.currentTimeMillis() / 50) % 20) == 0) {
                 trainlist.dataconfig.set(timepath, timenow - 1);
-                trainlist.save();
+
             }
         }
+        trainlist.save();
+        stapidslist.save();
         Bukkit.getScheduler().runTaskLater(plugin, pidsupdate::pidsClockLoop, 1);
     }
 
@@ -68,7 +73,9 @@ public class pidsupdate {
                 int y = stapidslist.dataconfig.getInt(indexpath + ".y");
                 int z = stapidslist.dataconfig.getInt(indexpath + ".z");
                 Location loc = new Location(w, x, y, z);
-                updateSinglePidsDisplay(stacode, plat, loc, pidsstyle);
+                if (loc.getChunk().isLoaded()) {
+                    updateSinglePidsDisplay(stacode, plat, loc, pidsstyle);
+                }
             } catch (Exception ignored) {
             }
         }

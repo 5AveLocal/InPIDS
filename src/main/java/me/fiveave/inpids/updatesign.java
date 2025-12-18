@@ -8,11 +8,11 @@ import com.bergerkiller.bukkit.tc.signactions.SignActionType;
 import com.bergerkiller.bukkit.tc.utils.SignBuildOptions;
 import org.bukkit.ChatColor;
 
-import static me.fiveave.inpids.main.*;
+import static me.fiveave.inpids.main.pidsclock;
+import static me.fiveave.inpids.main.trainlist;
 import static me.fiveave.inpids.pidsupdate.pidsClockLoop;
 
 public class updatesign extends SignAction {
-
 
 
     @Override
@@ -37,12 +37,13 @@ public class updatesign extends SignAction {
             if (oldlocation != null && !oldlocation.equals(location)) {
                 stat = "drive";
             }
-            int time = Integer.MIN_VALUE; // Time left in seconds
+            int time; // Time left in seconds
             if (l3.length > 1) {
                 try {
                     time = Integer.parseInt(l3[1]);
-                } catch (NumberFormatException e) {
+                } catch (Exception e) {
                     stat = l3[1];
+                    time = 0;
                 }
             } else {
                 time = stl.getTime()[stl.getStaIndex(location)];
@@ -50,10 +51,7 @@ public class updatesign extends SignAction {
             // Update trainlist
             trainlist.dataconfig.set(trainname + ".linesys", linesys);
             trainlist.dataconfig.set(trainname + ".location", location);
-            // If time is set
-            if (time != Integer.MIN_VALUE) {
-                trainlist.dataconfig.set(trainname + ".time", time);
-            }
+            trainlist.dataconfig.set(trainname + ".time", time);
             // If stat is set
             if (stat != null) {
                 trainlist.dataconfig.set(trainname + ".stat", stat);
@@ -68,11 +66,9 @@ public class updatesign extends SignAction {
     }
 
 
-
     @Override
     public boolean build(SignChangeActionEvent e) {
         try {
-
             SignBuildOptions opt = SignBuildOptions.create().setName(ChatColor.GOLD + "PIDS Information Updater");
             opt.setDescription("Update PIDS information, will trigger changes according to database");
             return opt.handle(e.getPlayer());
