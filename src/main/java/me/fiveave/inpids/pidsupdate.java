@@ -9,9 +9,7 @@ import org.bukkit.block.Sign;
 import org.bukkit.block.data.type.WallSign;
 import org.bukkit.configuration.ConfigurationSection;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import static me.fiveave.inpids.deprec.updatePlatPidsList;
 import static me.fiveave.inpids.main.*;
@@ -97,7 +95,8 @@ public class pidsupdate {
             List<Integer> lines = stylelist.dataconfig.getIntegerList(pidsstyle + ".lines");
             int loopinterval = stylelist.dataconfig.getInt(pidsstyle + ".loopinterval");
             int flashinterval = stylelist.dataconfig.getInt(pidsstyle + ".flashinterval");
-            // Get surrounding signs
+            // Get surrounding signs for update
+            HashSet<Sign> updatesignlist = new HashSet<>();
             BlockFace leftbf = getLeftbf(bf);
             for (int count = 0; count < lines.size() * height; count++) {
                 int h = count / width;
@@ -151,11 +150,19 @@ public class pidsupdate {
                             // If anything null then set to blank
                             dispstr = "";
                         }
-                        // Set sign
-                        sign2.setLine(lines.get(count % lines.size()), dispstr);
-                        sign2.update();
+                        // Set sign if different
+                        int line = lines.get(count % lines.size());
+                        String olds2 = sign2.getLine(line);
+                        if (!olds2.equals(dispstr)) {
+                            sign2.setLine(line, dispstr);
+                            updatesignlist.add(sign2);
+                        }
                     }
                 }
+            }
+            // Update signs
+            for (Sign sign : updatesignlist) {
+                sign.update();
             }
         }
     }
