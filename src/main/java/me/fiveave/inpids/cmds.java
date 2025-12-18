@@ -44,6 +44,10 @@ class cmds implements CommandExecutor, TabCompleter, Listener {
                 //noinspection SwitchStatementWithTooFewBranches
                 switch (args[0].toLowerCase()) {
                     case "setpids":
+                        if (args.length < 5) {
+                            playerErrorMsg(sender, "Correct usage: /inpids setpids <station> <platform> <pidsno> <style>");
+                            return true;
+                        }
                         // setpids <station> <platform> <pidsno> <style>
                         // Argument list
                         String sta = args[1];

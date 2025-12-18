@@ -10,7 +10,7 @@ import java.util.Objects;
 import java.util.logging.Level;
 
 public final class main extends JavaPlugin {
-    static final String INPIDS_HEAD = ChatColor.AQUA + "[" + ChatColor.GREEN + "Untenshi" + ChatColor.AQUA + "] ";
+    static final String INPIDS_HEAD = ChatColor.AQUA + "[" + ChatColor.YELLOW + "InPIDS" + ChatColor.AQUA + "] ";
     static main plugin;
     static boolean pidsclock;
     static absyaml linetypelist, stylelist, trainlist, stapidslist;
