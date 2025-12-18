@@ -2,15 +2,16 @@ package me.fiveave.inpids;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.block.data.type.WallSign;
+import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import static me.fiveave.inpids.deprec.updatePlatPidsList;
 import static me.fiveave.inpids.main.*;
@@ -31,52 +32,57 @@ public class pidsupdate {
     }
 
     static void pidsClockLoop() {
-        for (String trainname : trainlist.dataconfig.getKeys(false)) {
+        Set<String> trainnameset = trainlist.dataconfig.getKeys(false);
+        for (String trainname : trainnameset) {
             String linesys = trainlist.dataconfig.getString(trainname + ".linesys");
             statimelist stl = new statimelist(linesys);
-            for (int staindex = 0; staindex < stl.getStacode().length; staindex++) {
+            for (int staindex = 0; staindex < stl.getStacode().size(); staindex++) {
                 try {
-                    String stacode = stl.getStacode()[staindex];
-                    int plat = stl.getPlat()[staindex];
-                    World world = Bukkit.getWorld(Objects.requireNonNull(stapidslist.dataconfig.getString(stacode + ".world")));
+                    String stacode = stl.getStacode().get(staindex);
+                    int plat = stl.getPlat().get(staindex);
                     // Update PIDS list
                     updatePlatPidsList(stacode, plat, trainname);
                     // Update PIDS display
-                    updatePlatPidsDisplay(stacode, plat, world);
+                    updatePlatPidsDisplay(stacode, plat);
                 } catch (Exception ignored) {
                 }
             }
             // Subtract time
             String timepath = trainname + ".time";
             int timenow = trainlist.dataconfig.getInt(timepath);
-            if (timenow != 0 && Math.toIntExact((System.currentTimeMillis() / 50) % 20) == 0) {
+            if (timenow > 0 && Math.toIntExact((System.currentTimeMillis() / 50) % 20) == 0) {
                 trainlist.dataconfig.set(timepath, timenow - 1);
-
             }
         }
-        trainlist.save();
-        stapidslist.save();
+        if (!trainnameset.isEmpty()) {
+            trainlist.save();
+            stapidslist.save();
+        }
         Bukkit.getScheduler().runTaskLater(plugin, pidsupdate::pidsClockLoop, 1);
     }
 
     // Update all PIDS display on platform
-    static void updatePlatPidsDisplay(String stacode, int plat, World w) {
+    static void updatePlatPidsDisplay(String stacode, int plat) {
         String staplat = stacode + "." + plat;
         String locpath = staplat + ".locations";
-        for (String locindex : Objects.requireNonNull(stapidslist.dataconfig.getConfigurationSection(locpath)).getKeys(false)) {
-            try {
-                String indexpath = staplat + ".locations." + locindex;
-                String stylepath = indexpath + ".style";
-                // Get PIDS display style
-                String pidsstyle = stapidslist.dataconfig.getString(stylepath);
-                int x = stapidslist.dataconfig.getInt(indexpath + ".x");
-                int y = stapidslist.dataconfig.getInt(indexpath + ".y");
-                int z = stapidslist.dataconfig.getInt(indexpath + ".z");
-                Location loc = new Location(w, x, y, z);
-                if (loc.getChunk().isLoaded()) {
+        ConfigurationSection cs = stapidslist.dataconfig.getConfigurationSection(locpath);
+        if (cs != null) {
+            for (String locindex : cs.getKeys(false)) {
+                try {
+                    String indexpath = staplat + ".locations." + locindex;
+                    String stylepath = indexpath + ".style";
+                    // Get PIDS display style
+                    String pidsstyle = stapidslist.dataconfig.getString(stylepath);
+                    if (pidsstyle == null) {
+                        continue;
+                    }
+                    Location loc = stapidslist.dataconfig.getLocation(indexpath + ".pos");
+                    if (loc == null) {
+                        continue;
+                    }
                     updateSinglePidsDisplay(stacode, plat, loc, pidsstyle);
+                } catch (Exception ignored) {
                 }
-            } catch (Exception ignored) {
             }
         }
     }
@@ -114,8 +120,8 @@ public class pidsupdate {
                             String[] line = Objects.requireNonNull(linetypelist.dataconfig.getString(linesys + ".line")).split("\\|");
                             String[] type = Objects.requireNonNull(linetypelist.dataconfig.getString(linesys + ".type")).split("\\|");
                             statimelist stl = new statimelist(linesys);
-                            int terminusindex = stl.getStaname().length - 1;
-                            String[] destination = stl.getStaname()[terminusindex];
+                            int terminusindex = stl.getStaname().size() - 1;
+                            String[] destination = stl.getStaname().get(terminusindex);
                             // Language selector (by current time)
                             int langsize = destination.length;
                             int thislang = Math.toIntExact((System.currentTimeMillis() / 50) % ((long) loopinterval * langsize) / loopinterval);
@@ -127,8 +133,8 @@ public class pidsupdate {
                             String onelangstyle = splitonelang[Math.min(splitonelang.length - 1, thislang)];
                             // Variable replacement
                             int mtime = (int) (time / 60.0);
-                            boolean stop = stl.getStop()[stl.getStaIndex(stacode)];
-                            boolean atterminus = stl.getStacode()[terminusindex].equals(stacode);
+                            boolean stop = stl.getStop().get(stl.getStaIndex(stacode));
+                            boolean atterminus = stl.getStacode().get(terminusindex).equals(stacode);
                             String dest = destination[thislang];
                             String trainarr = getSplitStyleMsg(pidsstyle, "trainarr")[thislang];
                             String trainpass = getSplitStyleMsg(pidsstyle, "trainpass")[thislang];

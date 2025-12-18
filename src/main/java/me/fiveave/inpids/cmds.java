@@ -19,8 +19,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static me.fiveave.inpids.pidsupdate.getLeftbf;
 import static me.fiveave.inpids.main.*;
+import static me.fiveave.inpids.pidsupdate.getLeftbf;
 
 class cmds implements CommandExecutor, TabCompleter, Listener {
 
@@ -45,15 +45,15 @@ class cmds implements CommandExecutor, TabCompleter, Listener {
                 switch (args[0].toLowerCase()) {
                     case "setpids":
                         if (args.length < 5) {
-                            playerErrorMsg(sender, "Correct usage: /inpids setpids <station> <platform> <pidsno> <style>");
+                            playerErrorMsg(sender, "Correct usage: /inpids setpids <station> <platform> <style> <pidsno>");
                             return true;
                         }
-                        // setpids <station> <platform> <pidsno> <style>
+                        // setpids <station> <platform> <style> <pidsno>
                         // Argument list
                         String sta = args[1];
                         int plat = Integer.parseInt(args[2]);
-                        int pidsno = Integer.parseInt(args[3]);
-                        String style = args[4];
+                        String style = args[3];
+                        int pidsno = Integer.parseInt(args[4]);
                         // Get sign
                         Block b = p.getTargetBlock(Collections.singleton(Material.AIR), 5);
                         if (b.getState() instanceof Sign) {
@@ -80,10 +80,7 @@ class cmds implements CommandExecutor, TabCompleter, Listener {
                             // Set arguments
                             String pidspath = sta + "." + plat + ".locations." + pidsno;
                             if (!style.equals("null")) {
-                                stapidslist.dataconfig.set(sta + ".world", b.getWorld().getName());
-                                stapidslist.dataconfig.set(pidspath + ".x", loc.getBlockX());
-                                stapidslist.dataconfig.set(pidspath + ".y", loc.getBlockY());
-                                stapidslist.dataconfig.set(pidspath + ".z", loc.getBlockZ());
+                                stapidslist.dataconfig.set(pidspath + ".pos", loc);
                                 stapidslist.dataconfig.set(pidspath + ".style", style);
                                 sender.sendMessage(INPIDS_HEAD + ChatColor.GREEN + "Successfully set PIDS in " + pidspath + ".");
                             } else {
@@ -117,7 +114,7 @@ class cmds implements CommandExecutor, TabCompleter, Listener {
             case 1:
                 ta.add("setpids");
                 break;
-            case 3,4:
+            case 3, 5:
                 if (args[0].equalsIgnoreCase("setpids")) {
                     for (int i = 0; i < 10; i++) {
                         result.add(String.valueOf(i));

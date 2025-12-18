@@ -46,7 +46,7 @@ public class updatesign extends SignAction {
                     time = 0;
                 }
             } else {
-                time = stl.getTime()[stl.getStaIndex(location)];
+                time = stl.getTime().get(stl.getStaIndex(location));
             }
             // Update trainlist
             trainlist.dataconfig.set(trainname + ".linesys", linesys);
