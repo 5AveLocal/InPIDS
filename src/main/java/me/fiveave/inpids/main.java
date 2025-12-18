@@ -14,7 +14,7 @@ public final class main extends JavaPlugin {
     static main plugin;
     static boolean pidsclock;
     static absyaml linetypelist, stylelist, trainlist, stapidslist;
-    final inpidsupdate var0 = new inpidsupdate();
+    final updatesign var0 = new updatesign();
 
     static void errorLog(Exception e) {
         Bukkit.getLogger().log(Level.SEVERE, e.getMessage());

@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static me.fiveave.inpids.inpidsupdate.getLeftbf;
+import static me.fiveave.inpids.pidsupdate.getLeftbf;
 import static me.fiveave.inpids.main.*;
 
 class cmds implements CommandExecutor, TabCompleter, Listener {

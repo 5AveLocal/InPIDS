@@ -1,13 +1,6 @@
 package me.fiveave.inpids;
 
-import com.bergerkiller.bukkit.tc.controller.MinecartGroup;
-import com.bergerkiller.bukkit.tc.events.SignActionEvent;
-import com.bergerkiller.bukkit.tc.events.SignChangeActionEvent;
-import com.bergerkiller.bukkit.tc.signactions.SignAction;
-import com.bergerkiller.bukkit.tc.signactions.SignActionType;
-import com.bergerkiller.bukkit.tc.utils.SignBuildOptions;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -22,8 +15,7 @@ import java.util.Objects;
 import static me.fiveave.inpids.deprec.updatePlatPidsList;
 import static me.fiveave.inpids.main.*;
 
-public class inpidsupdate extends SignAction {
-
+public class pidsupdate {
     static BlockFace getLeftbf(BlockFace bf) {
         return switch (bf) {
             case EAST -> BlockFace.NORTH;
@@ -38,37 +30,7 @@ public class inpidsupdate extends SignAction {
         return Objects.requireNonNull(stylelist.dataconfig.getString(pidsstyle + ".messages." + path)).split("\\|");
     }
 
-    @Override
-    public boolean match(SignActionEvent info) {
-        return info.isType("inpidsupdate");
-    }
-
-    @Override
-    public void execute(SignActionEvent cartevent) {
-        if (cartevent.isAction(SignActionType.GROUP_ENTER, SignActionType.REDSTONE_ON) && cartevent.hasRailedMember() && cartevent.isPowered()) {
-            // Get sign info
-            String linesys = cartevent.getLine(2); // linesys includes both line name and train type
-            statimelist stl = new statimelist(linesys);
-            String[] l3 = cartevent.getLine(3).split(" ");
-            String location = l3[0]; // Location: station on linesys
-            int time = l3.length > 1 ? Integer.parseInt(l3[1]) : stl.getTime()[stl.getStaIndex(location)]; // Time left in seconds
-            // Train info
-            MinecartGroup mg = cartevent.getGroup();
-            String trainname = mg.getProperties().getTrainName();
-            // Update trainlist
-            trainlist.dataconfig.set(trainname + ".linesys", linesys);
-            trainlist.dataconfig.set(trainname + ".location", location);
-            trainlist.dataconfig.set(trainname + ".time", time);
-            trainlist.save();
-            // Start PIDS Clock Loop (if not yet started)
-            if (!pidsclock) {
-                pidsClockLoop();
-                pidsclock = true;
-            }
-        }
-    }
-
-    void pidsClockLoop() {
+    static void pidsClockLoop() {
         for (String trainname : trainlist.dataconfig.getKeys(false)) {
             String linesys = trainlist.dataconfig.getString(trainname + ".linesys");
             statimelist stl = new statimelist(linesys);
@@ -81,36 +43,39 @@ public class inpidsupdate extends SignAction {
                 // Update PIDS display
                 updatePlatPidsDisplay(stacode, plat, world);
             }
-            // Subtract time (unused)
-//            if (Math.toIntExact((System.currentTimeMillis() / 50) % 20) == 0) {
-//                String timepath = trainname + ".time";
-//                trainlist.dataconfig.set(timepath, trainlist.dataconfig.getInt(timepath) - 1);
-//                trainlist.save();
-//            }
+            // Subtract time
+            String timepath = trainname + ".time";
+            int timenow = trainlist.dataconfig.getInt(timepath);
+            if (timenow != 0 && Math.toIntExact((System.currentTimeMillis() / 50) % 20) == 0) {
+                trainlist.dataconfig.set(timepath, timenow - 1);
+                trainlist.save();
+            }
         }
-
-        Bukkit.getScheduler().runTaskLater(plugin, this::pidsClockLoop, 1);
+        Bukkit.getScheduler().runTaskLater(plugin, pidsupdate::pidsClockLoop, 1);
     }
 
     // Update all PIDS display on platform
-    void updatePlatPidsDisplay(String stacode, int plat, World w) {
+    static void updatePlatPidsDisplay(String stacode, int plat, World w) {
         String staplat = stacode + "." + plat;
         String locpath = staplat + ".locations";
         for (String locindex : Objects.requireNonNull(stapidslist.dataconfig.getConfigurationSection(locpath)).getKeys(false)) {
-            String indexpath = staplat + ".locations." + locindex;
-            String stylepath = indexpath + ".style";
-            // Get PIDS display style
-            String pidsstyle = stapidslist.dataconfig.getString(stylepath);
-            int x = stapidslist.dataconfig.getInt(indexpath + ".x");
-            int y = stapidslist.dataconfig.getInt(indexpath + ".y");
-            int z = stapidslist.dataconfig.getInt(indexpath + ".z");
-            Location loc = new Location(w, x, y, z);
-            updateSinglePidsDisplay(stacode, plat, loc, pidsstyle);
+            try {
+                String indexpath = staplat + ".locations." + locindex;
+                String stylepath = indexpath + ".style";
+                // Get PIDS display style
+                String pidsstyle = stapidslist.dataconfig.getString(stylepath);
+                int x = stapidslist.dataconfig.getInt(indexpath + ".x");
+                int y = stapidslist.dataconfig.getInt(indexpath + ".y");
+                int z = stapidslist.dataconfig.getInt(indexpath + ".z");
+                Location loc = new Location(w, x, y, z);
+                updateSinglePidsDisplay(stacode, plat, loc, pidsstyle);
+            } catch (Exception ignored) {
+            }
         }
     }
 
     // Update single PIDS display on platform
-    void updateSinglePidsDisplay(String stacode, int plat, Location loc, String pidsstyle) {
+    static void updateSinglePidsDisplay(String stacode, int plat, Location loc, String pidsstyle) {
         String staplat = stacode + "." + plat;
         Block b = loc.getBlock();
         BlockState bs = b.getState();
@@ -138,6 +103,7 @@ public class inpidsupdate extends SignAction {
                         try {
                             int time = stapidslist.dataconfig.getInt(staplat + ".departures." + count + ".time");
                             String linesys = trainlist.dataconfig.getString(trainname + ".linesys");
+                            String stat = Objects.requireNonNull(trainlist.dataconfig.getString(trainname + ".stat"));
                             String[] line = Objects.requireNonNull(linetypelist.dataconfig.getString(linesys + ".line")).split("\\|");
                             String[] type = Objects.requireNonNull(linetypelist.dataconfig.getString(linesys + ".type")).split("\\|");
                             statimelist stl = new statimelist(linesys);
@@ -168,7 +134,7 @@ public class inpidsupdate extends SignAction {
                             dispstr = onelangstyle.replaceAll("%type", atterminus ? notinservice : (stop ? type[thislang] : typepass))
                                     .replaceAll("%line", line[thislang])
                                     .replaceAll("%dest", String.valueOf(!atterminus ? dest : terminus))
-                                    .replaceAll("%tmin", String.valueOf(mtime > 0 ? (mtime + min) : time <= 0 ? trainstopping : (thisflash ? (stop ? trainarr : trainpass) : "")))
+                                    .replaceAll("%tmin", String.valueOf(stat.equals("drive") ? (mtime + min) : stat.equals("stop") ? trainstopping : (thisflash ? (stop ? trainarr : trainpass) : "")))
                                     .replaceAll("\\\\&", "\\\\and") // To keep & type \&
                                     .replaceAll("&", "§")
                                     .replaceAll("\\\\and", "&");
@@ -184,20 +150,4 @@ public class inpidsupdate extends SignAction {
             }
         }
     }
-
-    @Override
-    public boolean build(SignChangeActionEvent e) {
-        try {
-
-            SignBuildOptions opt = SignBuildOptions.create().setName(ChatColor.GOLD + "PIDS Information Updater");
-            opt.setDescription("Update PIDS information, will trigger changes according to database");
-            return opt.handle(e.getPlayer());
-        } catch (Exception exception) {
-            e.getPlayer().sendMessage(ChatColor.RED + "Invalid arguments!");
-            e.setCancelled(true);
-        }
-        return true;
-    }
-
-
 }
