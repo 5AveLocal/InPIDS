@@ -116,6 +116,7 @@ public class pidsupdate {
                         try {
                             int time = stapidslist.dataconfig.getInt(staplat + ".departures." + count + ".time");
                             String linesys = trainlist.dataconfig.getString(trainname + ".linesys");
+                            String location = trainlist.dataconfig.getString(trainname + ".location");
                             String stat = Objects.requireNonNull(trainlist.dataconfig.getString(trainname + ".stat"));
                             String[] line = Objects.requireNonNull(linetypelist.dataconfig.getString(linesys + ".line")).split("\\|");
                             String[] type = Objects.requireNonNull(linetypelist.dataconfig.getString(linesys + ".type")).split("\\|");
@@ -147,7 +148,7 @@ public class pidsupdate {
                             dispstr = onelangstyle.replaceAll("%type", atterminus ? notinservice : (stop ? type[thislang] : typepass))
                                     .replaceAll("%line", line[thislang])
                                     .replaceAll("%dest", String.valueOf(!atterminus ? dest : terminus))
-                                    .replaceAll("%tmin", String.valueOf(stat.equals("drive") ? (mtime + min) : stat.equals("stop") ? trainstopping : (thisflash ? (stop ? trainarr : trainpass) : "")))
+                                    .replaceAll("%tmin", String.valueOf(stat.equals("drive") || !stacode.equals(location) ? (mtime + min) : stat.equals("stop") ? trainstopping : (thisflash ? (stop ? trainarr : trainpass) : "")))
                                     .replaceAll("\\\\&", "\\\\and") // To keep & type \&
                                     .replaceAll("&", "§")
                                     .replaceAll("\\\\and", "&");
