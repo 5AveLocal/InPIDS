@@ -91,9 +91,7 @@ public class pidsupdate {
     static void updateSinglePidsDisplay(String stacode, int plat, Location loc, String pidsstyle) {
         String staplat = stacode + "." + plat;
         Block b = loc.getBlock();
-        BlockState bs = b.getState();
-        if (bs instanceof Sign) {
-            WallSign sign1 = (WallSign) b.getBlockData();
+        if (b.getBlockData() instanceof WallSign sign1) {
             BlockFace bf = sign1.getFacing();
             // Get data from stylelist.yml
             int width = stylelist.dataconfig.getInt(pidsstyle + ".width");
