@@ -103,6 +103,8 @@ public class pidsupdate {
                 // Variables
                 String onestyle = stylelist.dataconfig.getString(pidsstyle + ".style." + i);
                 String trainname = stapidslist.dataconfig.getString(staplat + ".departures." + count + ".name");
+                // No null train names
+                if (trainname == null) continue;
                 // Display variables
                 String dispstr = null;
                 try {
