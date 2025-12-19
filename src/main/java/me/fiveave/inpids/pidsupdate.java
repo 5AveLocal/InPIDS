@@ -9,10 +9,14 @@ import org.bukkit.block.Sign;
 import org.bukkit.block.data.type.WallSign;
 import org.bukkit.configuration.ConfigurationSection;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 import static me.fiveave.inpids.deprec.updatePlatPidsList;
 import static me.fiveave.inpids.main.*;
+import static me.fiveave.inpids.statimelist.getTimeToStation;
 
 public class pidsupdate {
     static BlockFace getLeftbf(BlockFace bf) {
@@ -29,30 +33,102 @@ public class pidsupdate {
         return Objects.requireNonNull(stylelist.dataconfig.getString(pidsstyle + ".messages." + path)).split("\\|");
     }
 
-    static void pidsClockLoop() {
+    static void updatePidsOnLine(String linesys) {
+        statimelist stl = new statimelist(linesys);
         Set<String> trainnameset = trainlist.dataconfig.getKeys(false);
+        HashSet<String> trainsonline = new HashSet<>();
+        for (String trainname : trainnameset) {
+            String trainlinesys = trainlist.dataconfig.getString(trainname + ".linesys");
+            if (trainlinesys != null && trainlinesys.equals(linesys)) {
+                trainsonline.add(trainname);
+            }
+        }
+        for (String trainname : trainsonline) {
+            for (int staindex = 0; staindex < stl.getStacode().size(); staindex++) {
+                String stacode = stl.getStacode().get(staindex);
+                int plat = stl.getPlat().get(staindex);
+                String staplat = stacode + "." + plat;
+                String deppath = staplat + ".departures";
+                ConfigurationSection cs = stapidslist.dataconfig.getConfigurationSection(deppath);
+                if (cs != null) {
+                    Set<String> depset = cs.getKeys(false);
+                    // Find if train exists
+                    int foundtrainindex = findTrainIndex(depset, staplat, trainname);
+                    int arrtime = getTimeToStation(trainname, stacode);
+                    // Add or update train in PIDS info
+                    String thisdeppath = deppath + "." + foundtrainindex;
+                    boolean notfound = foundtrainindex == -1;
+                    int max = 0;
+                    if (notfound) {
+                        for (String dep : depset) {
+                            int intdep = Integer.parseInt(dep);
+                            if (intdep > max) {
+                                max = intdep;
+                            }
+                        }
+                        thisdeppath = deppath + "." + max + 1;
+                    }
+                    if (arrtime == Integer.MIN_VALUE) {
+                        // Delete record
+                        stapidslist.dataconfig.set(thisdeppath, null);
+                    } else {
+                        // Add or set record
+                        stapidslist.dataconfig.set(thisdeppath + ".name", trainname);
+                        stapidslist.dataconfig.set(thisdeppath + ".time", arrtime);
+                    }
+                    stapidslist.save();
+                }
+            }
+        }
+    }
+
+    static int findTrainIndex(Set<String> depset, String staplat, String trainname) {
+        for (String dep : depset) {
+            String deppath = staplat + ".departures." + dep;
+            deprec dr = new deprec(deppath);
+            String deptrainname = dr.getName();
+            if (deptrainname != null && deptrainname.equals(trainname)) {
+                return Integer.parseInt(dep);
+            }
+        }
+        return -1;
+    }
+
+    static void pidsClockLoop() {
+        HashSet<String> linesysset = new HashSet<>();
+        // Get all lines
+        Set<String> trainnameset = trainlist.dataconfig.getKeys(false);
+        boolean isempty = trainnameset.isEmpty();
         for (String trainname : trainnameset) {
             String linesys = trainlist.dataconfig.getString(trainname + ".linesys");
-            statimelist stl = new statimelist(linesys);
-            for (int staindex = 0; staindex < stl.getStacode().size(); staindex++) {
-                try {
+            linesysset.add(linesys);
+        }
+        // For each line
+        for (String linesys : linesysset) {
+            updatePidsOnLine(linesys);
+            try {
+                statimelist stl = new statimelist(linesys);
+                for (int staindex = 0; staindex < stl.getStacode().size(); staindex++) {
                     String stacode = stl.getStacode().get(staindex);
                     int plat = stl.getPlat().get(staindex);
                     // Update PIDS list
-                    updatePlatPidsList(stacode, plat, trainname);
+                    updatePlatPidsList(stacode, plat);
                     // Update PIDS display
                     updatePlatPidsDisplay(stacode, plat);
-                } catch (Exception ignored) {
                 }
+            } catch (Exception ignored) {
             }
-            // Subtract time
+        }
+        // Subtract time
+        for (String trainname : trainnameset) {
             String timepath = trainname + ".time";
             int timenow = trainlist.dataconfig.getInt(timepath);
             if (timenow > 0 && Math.toIntExact((System.currentTimeMillis() / 50) % 20) == 0) {
                 trainlist.dataconfig.set(timepath, timenow - 1);
             }
         }
-        if (!trainnameset.isEmpty()) {
+        // Save files
+        if (!isempty) {
             trainlist.save();
             stapidslist.save();
         }
