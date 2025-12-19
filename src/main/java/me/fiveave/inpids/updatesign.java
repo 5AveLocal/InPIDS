@@ -59,11 +59,12 @@ public class updatesign extends SignAction {
             trainlist.save();
             // Start PIDS Clock Loop (if not yet started)
             if (!pidsclock) {
-                pidsclock = true;
                 pidsClockLoop();
+                pidsclock = true;
             }
         }
     }
+
 
     @Override
     public boolean build(SignChangeActionEvent e) {
