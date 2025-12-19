@@ -5,7 +5,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.block.data.type.WallSign;
 import org.bukkit.command.Command;
@@ -56,10 +55,10 @@ class cmds implements CommandExecutor, TabCompleter, Listener {
                         int pidsno = Integer.parseInt(args[4]);
                         // Get sign
                         Block b = p.getTargetBlock(Collections.singleton(Material.AIR), 5);
-                        if (b.getState() instanceof Sign) {
-                            WallSign sign1 = (WallSign) b.getBlockData();
+                        if (b.getBlockData() instanceof WallSign sign1) {
                             BlockFace bf = sign1.getFacing();
                             BlockFace leftbf = getLeftbf(bf);
+                            ArrayList<Location> loclist = new ArrayList<>();
                             // Only check if style is not "null"
                             if (!style.equals("null")) {
                                 // Get style height and width, check if style can be used
@@ -67,20 +66,22 @@ class cmds implements CommandExecutor, TabCompleter, Listener {
                                 int height = stylelist.dataconfig.getInt(style + ".height");
                                 for (int h = 0; h < height; h++) {
                                     for (int w = 0; w < width; w++) {
-                                        BlockState b2 = b.getRelative(leftbf, w).getRelative(BlockFace.DOWN, h).getState();
+                                        Block b2 = b.getRelative(leftbf, w).getRelative(BlockFace.DOWN, h);
+                                        loclist.add(b2.getLocation());
                                         // If fail then end
-                                        if (!(b2 instanceof Sign)) {
+                                        if (!(b2.getState() instanceof Sign)) {
                                             playerErrorMsg(sender, String.format("The selected sign does not match height = %d and width = %d of the style %s.", height, width, style));
                                             return true;
                                         }
                                     }
                                 }
                             }
-                            Location loc = b.getLocation();
                             // Set arguments
                             String pidspath = sta + "." + plat + ".locations." + pidsno;
                             if (!style.equals("null")) {
-                                stapidslist.dataconfig.set(pidspath + ".pos", loc);
+                                for (int i = 0; i < loclist.size(); i++) {
+                                    stapidslist.dataconfig.set(pidspath + ".pos." + i, loclist.get(i));
+                                }
                                 stapidslist.dataconfig.set(pidspath + ".style", style);
                                 sender.sendMessage(INPIDS_HEAD + ChatColor.GREEN + "Successfully set PIDS in " + pidspath + ".");
                             } else {
