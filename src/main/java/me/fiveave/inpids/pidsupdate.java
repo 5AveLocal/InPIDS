@@ -1,5 +1,6 @@
 package me.fiveave.inpids;
 
+import com.bergerkiller.bukkit.tc.properties.TrainProperties;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
@@ -10,10 +11,13 @@ import java.util.*;
 
 import static me.fiveave.inpids.deprec.updatePlatPidsList;
 import static me.fiveave.inpids.main.*;
+import static me.fiveave.inpids.statimelist.getTimeToStation;
 
 public class pidsupdate {
 
     static final HashMap<String, String> signtotext = new HashMap<>();
+    static final HashMap<Location, Integer> delpidslines = new HashMap<>();
+
     static BlockFace getLeftbf(BlockFace bf) {
         return switch (bf) {
             case EAST -> BlockFace.NORTH;
@@ -51,10 +55,14 @@ public class pidsupdate {
                 trainlist.dataconfig.set(timepath, timenow - 1);
             }
         }
-        if (!trainnameset.isEmpty()) {
-            trainlist.save();
-            stapidslist.save();
+        // Delete null train display from PIDS
+        for (Location delloc : delpidslines.keySet()) {
+            Sign s = (Sign) delloc.getBlock().getState();
+            int l = delpidslines.get(delloc);
+            s.setLine(l, "");
+            s.update();
         }
+        delpidslines.clear();
         Bukkit.getScheduler().runTaskLater(plugin, pidsupdate::pidsClockLoop, 1);
     }
 
@@ -103,61 +111,72 @@ public class pidsupdate {
                 // Variables
                 String onestyle = stylelist.dataconfig.getString(pidsstyle + ".style." + i);
                 String trainname = stapidslist.dataconfig.getString(staplat + ".departures." + count + ".name");
-                // No null train names
-                if (trainname == null) continue;
                 // Display variables
+                int displine = lines.get(count % linesize);
                 String dispstr = null;
-                try {
-                    int time = stapidslist.dataconfig.getInt(staplat + ".departures." + count + ".time");
-                    String linesys = trainlist.dataconfig.getString(trainname + ".linesys");
-                    String location = trainlist.dataconfig.getString(trainname + ".location");
-                    String stat = Objects.requireNonNull(trainlist.dataconfig.getString(trainname + ".stat"));
-                    String[] line = Objects.requireNonNull(linetypelist.dataconfig.getString(linesys + ".line")).split("\\|");
-                    String[] type = Objects.requireNonNull(linetypelist.dataconfig.getString(linesys + ".type")).split("\\|");
-                    statimelist stl = new statimelist(linesys);
-                    int terminusindex = stl.getStaname().size() - 1;
-                    String[] destination = stl.getStaname().get(terminusindex);
-                    // Language selector (by current time)
-                    int langsize = destination.length;
-                    int thislang = Math.toIntExact(ticks % ((long) loopinterval * langsize) / loopinterval);
-                    // Flash selector
-                    boolean thisflash = Math.toIntExact(ticks % ((long) flashinterval * 2) / flashinterval) == 0;
-                    // Language split
-                    assert onestyle != null;
-                    String[] splitonelang = onestyle.split("\\|");
-                    String onelangstyle = splitonelang[Math.min(splitonelang.length - 1, thislang)];
-                    // Variable replacement
-                    int mtime = (int) (time / 60.0);
-                    boolean stop = stl.getStop().get(stl.getStaIndex(stacode));
-                    boolean atterminus = stl.getStacode().get(terminusindex).equals(stacode);
-                    String dest = destination[thislang];
-                    String trainarr = getSplitStyleMsg(pidsstyle, "trainarr")[thislang];
-                    String trainpass = getSplitStyleMsg(pidsstyle, "trainpass")[thislang];
-                    String trainstopping = getSplitStyleMsg(pidsstyle, "trainstopping")[thislang];
-                    String typepass = getSplitStyleMsg(pidsstyle, "typepass")[thislang];
-                    String terminus = getSplitStyleMsg(pidsstyle, "terminus")[thislang];
-                    String notinservice = getSplitStyleMsg(pidsstyle, "notinservice")[thislang];
-                    String min = getSplitStyleMsg(pidsstyle, "min")[thislang];
-//                             String[] delay = Objects.requireNonNull(stylelist.dataconfig.getString(pidsstyle + ".messages.delay")).split("\\|");
-                    dispstr = onelangstyle.replaceAll("%type", atterminus ? notinservice : (stop ? type[thislang] : typepass))
-                            .replaceAll("%line", line[thislang])
-                            .replaceAll("%dest", String.valueOf(!atterminus ? dest : terminus))
-                            .replaceAll("%tmin", String.valueOf(stat.equals("drive") || !stacode.equals(location) ? (mtime + min) : stat.equals("stop") ? trainstopping : (thisflash ? (stop ? trainarr : trainpass) : "")))
-                            .replaceAll("\\\\&", "\\\\and") // To keep & type \&
-                            .replaceAll("&", "§")
-                            .replaceAll("\\\\and", "&");
-                } catch (Exception ignored) {
-                    // If anything null then set to blank
+                boolean trainnull = false;
+                if (trainname != null) {
+                    try {
+                        int time = stapidslist.dataconfig.getInt(staplat + ".departures." + count + ".time");
+                        String linesys = trainlist.dataconfig.getString(trainname + ".linesys");
+                        String location = trainlist.dataconfig.getString(trainname + ".location");
+                        String stat = Objects.requireNonNull(trainlist.dataconfig.getString(trainname + ".stat"));
+                        String[] line = Objects.requireNonNull(linetypelist.dataconfig.getString(linesys + ".line")).split("\\|");
+                        String[] type = Objects.requireNonNull(linetypelist.dataconfig.getString(linesys + ".type")).split("\\|");
+                        statimelist stl = new statimelist(linesys);
+                        int terminusindex = stl.getStaname().size() - 1;
+                        String[] destination = stl.getStaname().get(terminusindex);
+                        // Language selector (by current time)
+                        int langsize = destination.length;
+                        int thislang = Math.toIntExact(ticks % ((long) loopinterval * langsize) / loopinterval);
+                        // Flash selector
+                        boolean thisflash = Math.toIntExact(ticks % ((long) flashinterval * 2) / flashinterval) == 0;
+                        // Language split
+                        assert onestyle != null;
+                        String[] splitonelang = onestyle.split("\\|");
+                        String onelangstyle = splitonelang[Math.min(splitonelang.length - 1, thislang)];
+                        // Variable replacement
+                        int mtime = (int) (time / 60.0);
+                        boolean stop = stl.getStop().get(stl.getStaIndex(stacode));
+                        boolean atterminus = stl.getStacode().get(terminusindex).equals(stacode);
+                        String dest = destination[thislang];
+                        String trainarr = getSplitStyleMsg(pidsstyle, "trainarr")[thislang];
+                        String trainpass = getSplitStyleMsg(pidsstyle, "trainpass")[thislang];
+                        String trainstopping = getSplitStyleMsg(pidsstyle, "trainstopping")[thislang];
+                        String typepass = getSplitStyleMsg(pidsstyle, "typepass")[thislang];
+                        String terminus = getSplitStyleMsg(pidsstyle, "terminus")[thislang];
+                        String notinservice = getSplitStyleMsg(pidsstyle, "notinservice")[thislang];
+                        String min = getSplitStyleMsg(pidsstyle, "min")[thislang];
+                        //                             String[] delay = Objects.requireNonNull(stylelist.dataconfig.getString(pidsstyle + ".messages.delay")).split("\\|");
+                        dispstr = onelangstyle.replaceAll("%type", atterminus ? notinservice : (stop ? type[thislang] : typepass))
+                                .replaceAll("%line", line[thislang])
+                                .replaceAll("%dest", String.valueOf(!atterminus ? dest : terminus))
+                                .replaceAll("%tmin", String.valueOf(stat.equals("drive") || !stacode.equals(location) ? (mtime + min) : stat.equals("stop") ? trainstopping : (thisflash ? (stop ? trainarr : trainpass) : "")))
+                                .replaceAll("\\\\&", "\\\\and") // To keep & type \&
+                                .replaceAll("&", "§")
+                                .replaceAll("\\\\and", "&");
+                    } catch (Exception ignored) {
+                        // If anything null then set to blank
+                        TrainProperties tp = TrainProperties.get(trainname);
+                        if (tp == null || !tp.getHolder().isValid()) {
+//                            delpidslines.put(loclist.get(i), displine);
+                            trainnull = true;
+                        }
+                    }
                 }
-                // Set sign
-                String thispospath = pospath + "." + i;
+                // Set sign (format: stacode.plat.locations.pidsno.signno.lineno)
+                String thispospath = pospath + "." + i + "." + displine;
                 try {
-                    // Update only if sign is different than last tick
-                    if (dispstr != null && (!signtotext.containsKey(thispospath) || !signtotext.get(thispospath).equals(dispstr))) {
+                    // Update only if sign is different than last tick (requires non-null), or train is null
+                    // If train has passed station then set to blank
+                    boolean dispstrnull = dispstr == null;
+                    boolean passedsta = getTimeToStation(trainname, stacode) == Integer.MIN_VALUE;
+                    String setstr = dispstrnull || passedsta ? "" : dispstr;
+                    if (trainnull || (!dispstrnull || passedsta) && (!signtotext.containsKey(thispospath) || !signtotext.get(thispospath).equals(setstr))) {
                         Sign sign2 = (Sign) loclist.get(i).getBlock().getState();
-                        sign2.setLine(lines.get(count % linesize), dispstr);
+                        sign2.setLine(displine, setstr);
                         sign2.update();
-                        signtotext.put(thispospath, dispstr);
+                        signtotext.put(thispospath, setstr);
                     }
                 } catch (Exception ignored) {
                 }

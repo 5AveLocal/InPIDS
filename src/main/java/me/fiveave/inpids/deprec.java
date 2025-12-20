@@ -1,12 +1,12 @@
 package me.fiveave.inpids;
 
 import com.bergerkiller.bukkit.tc.properties.TrainProperties;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.ArrayList;
 
-import static me.fiveave.inpids.main.stapidslist;
-import static me.fiveave.inpids.main.trainlist;
+import static me.fiveave.inpids.main.*;
 import static me.fiveave.inpids.statimelist.getTimeToStation;
 
 public class deprec {
@@ -90,7 +90,7 @@ public class deprec {
                 String pidspath = staplat + ".departures." + dep;
                 // If time to station is -1, do not add into list
                 if (timetosta == Integer.MIN_VALUE) {
-                    stapidslist.dataconfig.set(pidspath, null);
+                    Bukkit.getScheduler().runTaskLater(plugin, () -> stapidslist.dataconfig.set(pidspath, null), 1);
                     continue;
                 }
                 deprec dr = new deprec(pidspath);
