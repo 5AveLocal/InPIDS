@@ -16,7 +16,6 @@ import static me.fiveave.inpids.statimelist.getTimeToStation;
 public class pidsupdate {
 
     static final HashMap<String, String> signtotext = new HashMap<>();
-    static final HashMap<Location, Integer> delpidslines = new HashMap<>();
 
     static BlockFace getLeftbf(BlockFace bf) {
         return switch (bf) {
@@ -55,14 +54,6 @@ public class pidsupdate {
                 trainlist.dataconfig.set(timepath, timenow - 1);
             }
         }
-        // Delete null train display from PIDS
-        for (Location delloc : delpidslines.keySet()) {
-            Sign s = (Sign) delloc.getBlock().getState();
-            int l = delpidslines.get(delloc);
-            s.setLine(l, "");
-            s.update();
-        }
-        delpidslines.clear();
         Bukkit.getScheduler().runTaskLater(plugin, pidsupdate::pidsClockLoop, 1);
     }
 
@@ -159,7 +150,6 @@ public class pidsupdate {
                         // If anything null then set to blank
                         TrainProperties tp = TrainProperties.get(trainname);
                         if (tp == null || !tp.getHolder().isValid()) {
-//                            delpidslines.put(loclist.get(i), displine);
                             trainnull = true;
                         }
                     }
