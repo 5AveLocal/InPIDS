@@ -31,7 +31,7 @@ public final class main extends JavaPlugin {
         stapidslist = new absyaml(this, "stapidslist.yml");
         String iwakinoup = "statimelist/iwakinoup.csv";
         if (!new File(plugin.getDataFolder() + "/" + iwakinoup).exists()) {
-            plugin.saveResource("statimelist/iwakinoup.csv", false);
+            plugin.saveResource(iwakinoup, false);
         }
         Objects.requireNonNull(this.getCommand("inpids")).setExecutor(new cmds());
         Objects.requireNonNull(this.getCommand("inpids")).setTabCompleter(new cmds());
