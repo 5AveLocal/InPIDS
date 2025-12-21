@@ -16,6 +16,7 @@ import static me.fiveave.inpids.statimelist.getTimeToStation;
 public class pidsupdate {
 
     static final HashMap<String, String> signtotext = new HashMap<>();
+    static final HashMap<Location, Sign> loctosign = new HashMap<>();
 
     static BlockFace getLeftbf(BlockFace bf) {
         return switch (bf) {
@@ -163,7 +164,12 @@ public class pidsupdate {
                     boolean passedsta = getTimeToStation(trainname, stacode) == Integer.MIN_VALUE;
                     String setstr = dispstrnull || passedsta ? "" : dispstr;
                     if (trainnull || (!dispstrnull || passedsta) && (!signtotext.containsKey(thispospath) || !signtotext.get(thispospath).equals(setstr))) {
-                        Sign sign2 = (Sign) loclist.get(i).getBlock().getState();
+                        Location setloc = loclist.get(i);
+                        // Save signs to HashMap to prevent frequent getState
+                        if (!loctosign.containsKey(setloc)) {
+                            loctosign.put(setloc, (Sign) setloc.getBlock().getState());
+                        }
+                        Sign sign2 = loctosign.get(setloc);
                         sign2.setLine(displine, setstr);
                         sign2.update();
                         signtotext.put(thispospath, setstr);
