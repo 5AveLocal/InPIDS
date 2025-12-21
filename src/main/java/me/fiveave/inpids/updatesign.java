@@ -28,6 +28,10 @@ public class updatesign extends SignAction {
             // Get sign info
             String linesys = cartevent.getLine(2); // linesys includes both line name and train type
             statimelist stl = stlmap.get(linesys);
+            if (stl == null) {
+                errorLog(new Exception(linesys + ".csv does not exist!"));
+                return;
+            }
             String[] l3 = cartevent.getLine(3).split(" ");
             String location = l3[0]; // Location: station on linesys
             String oldlocation = trainlist.dataconfig.getString(trainname + ".location");
