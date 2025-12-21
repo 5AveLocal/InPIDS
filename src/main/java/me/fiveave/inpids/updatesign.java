@@ -8,8 +8,7 @@ import com.bergerkiller.bukkit.tc.signactions.SignActionType;
 import com.bergerkiller.bukkit.tc.utils.SignBuildOptions;
 import org.bukkit.ChatColor;
 
-import static me.fiveave.inpids.main.pidsclock;
-import static me.fiveave.inpids.main.trainlist;
+import static me.fiveave.inpids.main.*;
 import static me.fiveave.inpids.pidsupdate.pidsClockLoop;
 
 public class updatesign extends SignAction {
@@ -28,7 +27,7 @@ public class updatesign extends SignAction {
             String trainname = mg.getProperties().getTrainName();
             // Get sign info
             String linesys = cartevent.getLine(2); // linesys includes both line name and train type
-            statimelist stl = new statimelist(linesys);
+            statimelist stl = stlmap.get(linesys);
             String[] l3 = cartevent.getLine(3).split(" ");
             String location = l3[0]; // Location: station on linesys
             String oldlocation = trainlist.dataconfig.getString(trainname + ".location");

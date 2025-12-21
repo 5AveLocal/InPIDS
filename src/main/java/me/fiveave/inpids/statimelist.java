@@ -6,8 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import static me.fiveave.inpids.main.plugin;
-import static me.fiveave.inpids.main.trainlist;
+import static me.fiveave.inpids.main.*;
 
 public class statimelist {
     private final File file;
@@ -36,7 +35,7 @@ public class statimelist {
         if (linesys == null) {
             return Integer.MIN_VALUE;
         }
-        statimelist stl = new statimelist(linesys);
+        statimelist stl = stlmap.get(linesys);
         int currentstaindex = stl.getStaIndex(location);
         int targetstaindex = stl.getStaIndex(targetsta);
         int totaltime = 0;

@@ -6,11 +6,13 @@ import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.logging.Level;
 
 public final class main extends JavaPlugin {
     static final String INPIDS_HEAD = ChatColor.AQUA + "[" + ChatColor.YELLOW + "InPIDS" + ChatColor.AQUA + "] ";
+    static final HashMap<String, statimelist> stlmap = new HashMap<>();
     static main plugin;
     static boolean pidsclock;
     static absyaml linetypelist, stylelist, trainlist, stapidslist;
@@ -33,6 +35,22 @@ public final class main extends JavaPlugin {
         if (!new File(plugin.getDataFolder() + "/" + iwakinoup).exists()) {
             plugin.saveResource(iwakinoup, false);
         }
+        // Save all statimelist into HashMap to prevent creating new objects repeatedly
+        File stlfolder = new File(plugin.getDataFolder() + "/statimelist");
+        File[] stlfiles = stlfolder.listFiles();
+        if (stlfiles != null) {
+            for (File stlf : stlfiles) {
+                String stlfname = stlf.getName();
+                if (stlfname.contains(".csv")) {
+                    String purestlfname = stlfname.substring(0, stlfname.lastIndexOf("."));
+                    stlmap.put(purestlfname, new statimelist(purestlfname));
+                }
+            }
+        }
+        if (stlmap.isEmpty()) {
+            errorLog(new Exception("Could not find .csv files in statimelist folder!"));
+        }
+        // Register commands and signs
         Objects.requireNonNull(this.getCommand("inpids")).setExecutor(new cmds());
         Objects.requireNonNull(this.getCommand("inpids")).setTabCompleter(new cmds());
         SignAction.register(var0);

@@ -35,7 +35,7 @@ public class pidsupdate {
         Set<String> trainnameset = trainlist.dataconfig.getKeys(false);
         for (String trainname : trainnameset) {
             String linesys = trainlist.dataconfig.getString(trainname + ".linesys");
-            statimelist stl = new statimelist(linesys);
+            statimelist stl = stlmap.get(linesys);
             for (int staindex = 0; staindex < stl.getStacode().size(); staindex++) {
                 try {
                     String stacode = stl.getStacode().get(staindex);
@@ -114,7 +114,7 @@ public class pidsupdate {
                         String stat = Objects.requireNonNull(trainlist.dataconfig.getString(trainname + ".stat"));
                         String[] line = Objects.requireNonNull(linetypelist.dataconfig.getString(linesys + ".line")).split("\\|");
                         String[] type = Objects.requireNonNull(linetypelist.dataconfig.getString(linesys + ".type")).split("\\|");
-                        statimelist stl = new statimelist(linesys);
+                        statimelist stl = stlmap.get(linesys);
                         int terminusindex = stl.getStaname().size() - 1;
                         String[] destination = stl.getStaname().get(terminusindex);
                         // Language selector (by current time)
