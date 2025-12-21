@@ -166,9 +166,7 @@ public class pidsupdate {
                     if (trainnull || (!dispstrnull || passedsta) && (!signtotext.containsKey(thispospath) || !signtotext.get(thispospath).equals(setstr))) {
                         Location setloc = loclist.get(i);
                         // Save signs to HashMap to prevent frequent getState
-                        if (!loctosign.containsKey(setloc)) {
-                            loctosign.put(setloc, (Sign) setloc.getBlock().getState());
-                        }
+                        loctosign.putIfAbsent(setloc, (Sign) setloc.getBlock().getState());
                         Sign sign2 = loctosign.get(setloc);
                         sign2.setLine(displine, setstr);
                         sign2.update();
