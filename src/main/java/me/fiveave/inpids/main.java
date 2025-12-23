@@ -16,7 +16,7 @@ public final class main extends JavaPlugin {
     static main plugin;
     static boolean pidsclock;
     static absyaml linetypelist, stylelist, trainlist, stapidslist;
-    static boolean tlsave;
+    static boolean tlsave, splsave;
     final updatesign var0 = new updatesign();
 
     static void errorLog(Exception e) {
@@ -29,6 +29,7 @@ public final class main extends JavaPlugin {
         plugin = this;
         pidsclock = false;
         tlsave = false;
+        splsave = false;
         linetypelist = new absyaml(this, "linetypelist.yml");
         stylelist = new absyaml(this, "stylelist.yml");
         trainlist = new absyaml(this, "trainlist.yml");

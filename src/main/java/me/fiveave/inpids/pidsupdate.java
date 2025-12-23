@@ -60,6 +60,11 @@ public class pidsupdate {
             trainlist.save();
             tlsave = false;
         }
+        // Save to stapidslist at once at end for all
+        if (splsave) {
+            stapidslist.save();
+            splsave = false;
+        }
         Bukkit.getScheduler().runTaskLater(plugin, pidsupdate::pidsClockLoop, 1);
     }
 

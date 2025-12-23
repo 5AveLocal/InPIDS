@@ -83,7 +83,8 @@ public class deprec {
                 String pidspath = staplat + ".departures." + dep;
                 // If time to station is -1, do not add into list
                 if (timetosta == Integer.MIN_VALUE) {
-                    Bukkit.getScheduler().runTaskLater(plugin, () -> stapidslist.dataconfig.set(pidspath, null), 1);
+                    stapidslist.dataconfig.set(pidspath, null);
+                    splsave = true;
                     continue;
                 }
                 deprec dr = new deprec(pidspath);
