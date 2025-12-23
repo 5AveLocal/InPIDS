@@ -50,14 +50,6 @@ public class deprec {
         return newdepreclist;
     }
 
-//    public String getType() {
-//        return type;
-//    }
-//
-//    public void setType(String type) {
-//        this.type = type;
-//    }
-
     static int getMinPidsRecIndex(ArrayList<deprec> pidsreclist) {
         int index = -1;
         int min = Integer.MAX_VALUE;
