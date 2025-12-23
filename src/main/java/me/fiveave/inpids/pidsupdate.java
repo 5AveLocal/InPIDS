@@ -55,6 +55,10 @@ public class pidsupdate {
                 trainlist.dataconfig.set(timepath, timenow - 1);
             }
         }
+        if (tlsave) {
+            trainlist.save();
+            tlsave = false;
+        }
         Bukkit.getScheduler().runTaskLater(plugin, pidsupdate::pidsClockLoop, 1);
     }
 

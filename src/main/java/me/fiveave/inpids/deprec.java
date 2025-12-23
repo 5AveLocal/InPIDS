@@ -30,6 +30,7 @@ public class deprec {
         TrainProperties tp = TrainProperties.get(trainname);
         if ((tp == null || !tp.getHolder().isValid()) && trainname != null) {
             trainlist.dataconfig.set(trainname, null);
+            tlsave = true;
             timetosta = Integer.MIN_VALUE;
         }
         // Add trains into list if valid, and find if list contains this train
