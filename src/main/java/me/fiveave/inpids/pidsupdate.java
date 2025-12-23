@@ -132,7 +132,7 @@ public class pidsupdate {
                         int langsize = destination.length;
                         int thislang = Math.toIntExact(ticks % ((long) loopinterval * langsize) / loopinterval);
                         // Flash selector
-                        boolean thisflash = Math.toIntExact(ticks % ((long) flashinterval * 2) / flashinterval) == 0;
+                        boolean thisflash = ticks % ((long) flashinterval * 2) / flashinterval == 0;
                         // Language split
                         assert onestyle != null;
                         String[] splitonelang = onestyle.split("\\|");
@@ -149,7 +149,7 @@ public class pidsupdate {
                         String terminus = getSplitStyleMsg(pidsstyle, "terminus")[thislang];
                         String notinservice = getSplitStyleMsg(pidsstyle, "notinservice")[thislang];
                         String min = getSplitStyleMsg(pidsstyle, "min")[thislang];
-                        //                             String[] delay = Objects.requireNonNull(stylelist.dataconfig.getString(pidsstyle + ".messages.delay")).split("\\|");
+                        //String[] delay = Objects.requireNonNull(stylelist.dataconfig.getString(pidsstyle + ".messages.delay")).split("\\|");
                         dispstr = onelangstyle.replaceAll("%type", atterminus ? notinservice : (stop ? type[thislang] : typepass))
                                 .replaceAll("%line", line[thislang])
                                 .replaceAll("%dest", String.valueOf(!atterminus ? dest : terminus))
@@ -172,8 +172,8 @@ public class pidsupdate {
                     // If train has passed station then set to blank
                     boolean dispstrnull = dispstr == null;
                     boolean passedsta = getTimeToStation(trainname, stacode) == Integer.MIN_VALUE;
-                    String setstr = dispstrnull || passedsta ? "" : dispstr;
-                    if (trainnull || (!dispstrnull || passedsta) && (!signtotext.containsKey(thispospath) || !signtotext.get(thispospath).equals(setstr))) {
+                    String setstr = trainnull || dispstrnull || passedsta ? "" : dispstr;
+                    if (!signtotext.containsKey(thispospath) || !signtotext.get(thispospath).equals(setstr)) {
                         Location setloc = loclist.get(i);
                         // Save signs to HashMap to prevent frequent getState
                         loctosign.putIfAbsent(setloc, (Sign) setloc.getBlock().getState());
