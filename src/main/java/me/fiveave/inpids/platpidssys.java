@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static me.fiveave.inpids.main.*;
+import static me.fiveave.inpids.pidsupdate.clearSinglePidsDisplay;
 import static me.fiveave.inpids.pidsupdate.updateSinglePidsDisplay;
 import static me.fiveave.inpids.statimelist.getTimeToStation;
 
@@ -17,10 +18,11 @@ class platpidssys {
     String stacode;
     String plat;
     ArrayList<deprec> depreclist;
-    boolean reqsort;
+    boolean reqforceclear;
 
     platpidssys(String stacode, String plat) {
         depreclist = new ArrayList<>();
+        reqforceclear = false;
         pidsset = new HashSet<>();
         this.stacode = stacode;
         this.plat = plat;
@@ -51,13 +53,16 @@ class platpidssys {
         }
         // Remove those who has to be removed
         deldrlist.forEach(this::removeDeprec);
-        // Sort if needed
-        if (reqsort) {
-            sortPidsList();
+        // Clear PIDS display for those removed
+        if (reqforceclear) {
+            for (String pids : pidsset) {
+                clearSinglePidsDisplay(stacode, plat, pids);
+            }
+            reqforceclear = false;
         }
         // Update PIDS display
         for (String pids : pidsset) {
-            updateSinglePidsDisplay(stacode, plat, depreclist, pids, false);
+            updateSinglePidsDisplay(stacode, plat, depreclist, pids);
         }
         // Loop every tick unless depreclist is empty
         Bukkit.getScheduler().runTaskLater(plugin, this::clock, 1);
@@ -75,23 +80,20 @@ class platpidssys {
         if (!found) {
             depreclist.add(dr);
         }
-        reqsort = true;
+        sortPidsList();
     }
 
     // TODO: Find out why departure records are not cleared on PIDS when train is deleted / goes to next station
     void removeDeprec(deprec dr) {
         if (depreclist.contains(dr)) {
             // Remove PIDS line
-            for (String pids : pidsset) {
-                updateSinglePidsDisplay(stacode, plat, depreclist, pids, true);
-            }
+            reqforceclear = true;
             depreclist.remove(dr);
-            reqsort = true;
+            sortPidsList();
         }
     }
 
     void sortPidsList() {
         depreclist.sort(Comparator.comparingDouble(deprec::getTime));
-        reqsort = false;
     }
 }

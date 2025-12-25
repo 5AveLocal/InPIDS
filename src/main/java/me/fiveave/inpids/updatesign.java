@@ -79,7 +79,8 @@ public class updatesign extends SignAction {
                     // Add or modify
                     pps.addOrModifyDeprec(dr);
                 } else {
-                    // Delete
+                    // TODO: This part does not work when train is deleted
+                    System.out.println("okokok");
                     pps.removeDeprec(dr);
                 }
                 pidsrecmap.put(staplat, pps);
