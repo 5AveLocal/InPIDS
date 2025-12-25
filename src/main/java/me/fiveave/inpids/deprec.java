@@ -3,7 +3,6 @@ package me.fiveave.inpids;
 public class deprec {
     // Departure records in a PIDS display
     private final String name; // Name of data (e.g. train name, info name)
-    //    private String type; // Type of data (e.g. train, info)
     private int time; // -1 for N/A
 
     deprec(String name, int time) {
