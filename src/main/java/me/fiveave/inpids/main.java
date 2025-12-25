@@ -13,8 +13,9 @@ import java.util.logging.Level;
 public final class main extends JavaPlugin {
     static final String INPIDS_HEAD = ChatColor.AQUA + "[" + ChatColor.YELLOW + "InPIDS" + ChatColor.AQUA + "] ";
     static final HashMap<String, statimelist> stlmap = new HashMap<>();
+    static final HashMap<String, platpidssys> pidsrecmap = new HashMap<>();
     static main plugin;
-    static boolean pidsclock;
+    static boolean tlClock;
     static absyaml linetypelist, stylelist, trainlist, stapidslist;
     static boolean tlsave, splsave;
     final updatesign var0 = new updatesign();
@@ -23,11 +24,15 @@ public final class main extends JavaPlugin {
         Bukkit.getLogger().log(Level.SEVERE, e.getMessage());
     }
 
+    static boolean isAtZeroTick() {
+        return Math.toIntExact((System.currentTimeMillis() / 50) % 20) == 0;
+    }
+
     @Override
     public void onEnable() {
         // Plugin startup logic
         plugin = this;
-        pidsclock = false;
+        tlClock = false;
         tlsave = false;
         splsave = false;
         linetypelist = new absyaml(this, "linetypelist.yml");

@@ -12,7 +12,7 @@ public class statimelist {
     private final File file;
     private final ArrayList<String> stacode;
     private final ArrayList<String[]> staname;
-    private final ArrayList<Integer> plat;
+    private final ArrayList<String> plat;
     private final ArrayList<Integer> time;
     private final ArrayList<Boolean> stop;
 
@@ -53,7 +53,7 @@ public class statimelist {
         return time;
     }
 
-    public ArrayList<Integer> getPlat() {
+    public ArrayList<String> getPlat() {
         return plat;
     }
 
@@ -70,7 +70,7 @@ public class statimelist {
         try {
             ArrayList<String> stacodelist = new ArrayList<>();
             ArrayList<String[]> stanamelist = new ArrayList<>();
-            ArrayList<Integer> platlist = new ArrayList<>();
+            ArrayList<String> platlist = new ArrayList<>();
             ArrayList<Integer> timelist = new ArrayList<>();
             ArrayList<Boolean> stoplist = new ArrayList<>();
             BufferedReader br = new BufferedReader(new FileReader(file));
@@ -81,7 +81,7 @@ public class statimelist {
                 String thiscode = linesplit[0];
                 String[] thisstaname = new String[namesize];
                 System.arraycopy(linesplit, 1, thisstaname, 0, namesize);
-                int thisplat = Integer.parseInt(linesplit[namesize + 1]);
+                String thisplat = linesplit[namesize + 1];
                 int thistime = Integer.parseInt(linesplit[namesize + 2]);
                 boolean thisstop = linesplit[namesize + 3].equals("stop");
                 // Add to list
