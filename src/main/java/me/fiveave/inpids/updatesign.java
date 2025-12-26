@@ -75,13 +75,11 @@ public class updatesign extends SignAction {
                 // Create new or get platpidssys
                 platpidssys pps = !pidsrecmap.containsKey(staplat) ? new platpidssys(stacode, plat) : pidsrecmap.get(staplat);
                 // Delete if passed station or train is null, add or modify if exists and will arrive
-                if (statime != Integer.MIN_VALUE) {
+                if (statime == Integer.MIN_VALUE) {
+                    pps.removeDeprec(dr);
+                } else {
                     // Add or modify
                     pps.addOrModifyDeprec(dr);
-                } else {
-                    // TODO: This part does not work when train is deleted
-                    System.out.println("okokok");
-                    pps.removeDeprec(dr);
                 }
                 pidsrecmap.put(staplat, pps);
             }

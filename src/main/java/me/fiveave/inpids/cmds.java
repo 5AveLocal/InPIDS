@@ -78,16 +78,17 @@ class cmds implements CommandExecutor, TabCompleter, Listener {
                             }
                             // Set arguments
                             String pidspath = sta + "." + plat + ".locations." + pidsno;
+                            String locstr = ChatColor.GRAY + " (" + b.getLocation().getX() + " " + + b.getLocation().getY() + " " + + b.getLocation().getZ() + ")";
                             if (!style.equals("null")) {
                                 for (int i = 0; i < loclist.size(); i++) {
                                     stapidslist.dataconfig.set(pidspath + ".pos." + i, loclist.get(i));
                                 }
                                 stapidslist.dataconfig.set(pidspath + ".style", style);
-                                sender.sendMessage(INPIDS_HEAD + ChatColor.GREEN + "Successfully set PIDS in " + pidspath + ".");
+                                sender.sendMessage(INPIDS_HEAD + ChatColor.GREEN + "Successfully set PIDS in " + pidspath + "." + locstr);
                             } else {
                                 // If style is "null" then remove PIDS from stapidslist
                                 stapidslist.dataconfig.set(pidspath, null);
-                                sender.sendMessage(INPIDS_HEAD + ChatColor.GREEN + "Successfully removed PIDS in " + pidspath + ".");
+                                sender.sendMessage(INPIDS_HEAD + ChatColor.GREEN + "Successfully removed PIDS in " + pidspath + "." + locstr);
                             }
                             stapidslist.save();
                         } else {
