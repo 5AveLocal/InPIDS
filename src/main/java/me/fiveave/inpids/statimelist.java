@@ -15,6 +15,7 @@ public class statimelist {
     private final ArrayList<String> plat;
     private final ArrayList<Integer> time;
     private final ArrayList<Boolean> stop;
+    private int size;
 
     // Initialize constructor
     statimelist(String linesys) {
@@ -68,6 +69,7 @@ public class statimelist {
     // Read .csv
     private void readFile() {
         try {
+            int length = 0;
             ArrayList<String> stacodelist = new ArrayList<>();
             ArrayList<String[]> stanamelist = new ArrayList<>();
             ArrayList<String> platlist = new ArrayList<>();
@@ -90,12 +92,15 @@ public class statimelist {
                 platlist.add(thisplat);
                 timelist.add(thistime);
                 stoplist.add(thisstop);
+                // Increase length
+                length++;
             }
             stacode.addAll(stacodelist);
             staname.addAll(stanamelist);
             plat.addAll(platlist);
             time.addAll(timelist);
             stop.addAll(stoplist);
+            size = length;
 
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -103,7 +108,7 @@ public class statimelist {
     }
 
     public int getStaIndex(String sta) {
-        for (int i = 0; i < stacode.size(); i++) {
+        for (int i = 0; i < size; i++) {
             if (stacode.get(i).equals(sta)) {
                 return i;
             }
@@ -114,5 +119,9 @@ public class statimelist {
 
     public ArrayList<Boolean> getStop() {
         return stop;
+    }
+
+    public int getSize() {
+        return size;
     }
 }

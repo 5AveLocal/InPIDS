@@ -64,6 +64,7 @@ class platpidssys {
             if (dr0.getName().equals(dr.getName())) {
                 dr0.setTime(dr.getTime());
                 found = true;
+                break;
             }
         }
         // If not found
@@ -73,11 +74,14 @@ class platpidssys {
         sortPidsList();
     }
 
-    // TODO: Find out why departure records are not cleared on PIDS when train is deleted / goes to next station
     void removeDeprec(deprec dr) {
-        if (depreclist.contains(dr)) {
-            depreclist.remove(dr);
-            sortPidsList();
+        for (deprec dr0 : depreclist) {
+            // deprec object may be newly created and thus has different signatures, even though contents of both are the same
+            if (dr0.getName().equals(dr.getName()) && dr0.getTime() == dr.getTime()) {
+                depreclist.remove(dr0);
+                sortPidsList();
+                break;
+            }
         }
     }
 

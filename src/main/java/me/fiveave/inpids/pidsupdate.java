@@ -1,6 +1,5 @@
 package me.fiveave.inpids;
 
-import com.bergerkiller.bukkit.tc.properties.TrainProperties;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
@@ -14,7 +13,6 @@ import static me.fiveave.inpids.statimelist.getTimeToStation;
 public class pidsupdate {
 
     static final HashMap<String, String> signtotext = new HashMap<>();
-    static final HashMap<Location, Sign> loctosign = new HashMap<>();
 
     static BlockFace getLeftbf(BlockFace bf) {
         return switch (bf) {
@@ -58,7 +56,6 @@ public class pidsupdate {
                 // Display variables
                 int displine = lines.get(count % linesize);
                 String dispstr = null;
-                boolean trainnull = false;
                 String trainname = null;
                 // Skip and set to blank if cannot find
                 if (count < depreclist.size()) {
@@ -73,7 +70,7 @@ public class pidsupdate {
                             String[] line = Objects.requireNonNull(linetypelist.dataconfig.getString(linesys + ".line")).split("\\|");
                             String[] type = Objects.requireNonNull(linetypelist.dataconfig.getString(linesys + ".type")).split("\\|");
                             statimelist stl = stlmap.get(linesys);
-                            int terminusindex = stl.getStaname().size() - 1;
+                            int terminusindex = stl.getSize() - 1;
                             String[] destination = stl.getStaname().get(terminusindex);
                             // Language selector (by current time)
                             int langsize = destination.length;
@@ -97,6 +94,7 @@ public class pidsupdate {
                             String notinservice = getSplitStyleMsg(pidsstyle, "notinservice")[thislang];
                             String min = getSplitStyleMsg(pidsstyle, "min")[thislang];
                             //String[] delay = Objects.requireNonNull(stylelist.dataconfig.getString(pidsstyle + ".messages.delay")).split("\\|");
+                            // Display string replacements
                             dispstr = onelangstyle.replaceAll("%type", atterminus ? notinservice : (stop ? type[thislang] : typepass))
                                     .replaceAll("%line", line[thislang])
                                     .replaceAll("%dest", String.valueOf(!atterminus ? dest : terminus))
@@ -105,11 +103,7 @@ public class pidsupdate {
                                     .replaceAll("&", "§")
                                     .replaceAll("\\\\and", "&");
                         } catch (Exception ignored) {
-                            // If anything null then set to blank
-                            TrainProperties tp = TrainProperties.get(trainname);
-                            if (tp == null || !tp.getHolder().isValid()) {
-                                trainnull = true;
-                            }
+                            // If anything null then display will be set to blank
                         }
                     }
                 }
@@ -120,7 +114,7 @@ public class pidsupdate {
                     // If train has passed station then set to blank
                     boolean dispstrnull = dispstr == null;
                     boolean passedsta = getTimeToStation(trainname, stacode) == Integer.MIN_VALUE;
-                    String setstr = trainnull || dispstrnull || passedsta ? "" : dispstr;
+                    String setstr = dispstrnull || passedsta ? "" : dispstr;
                     signtotext.putIfAbsent(thispospath, "");
                     if (!signtotext.get(thispospath).equals(setstr)) {
                         Location setloc = loclist.get(i);

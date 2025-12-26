@@ -39,10 +39,29 @@ public class updatesign extends SignAction {
             String[] l3 = cartevent.getLine(3).split(" ");
             String location = l3[0]; // Location: station on linesys
             String oldlocation = trainlist.dataconfig.getString(trainname + ".location");
+            String oldlinesys = trainlist.dataconfig.getString(trainname + ".linesys");
             String stat = null; // Train status: drive / arr / stop
-            // If location is different then stat is "drive" by default
-            if (oldlocation != null && !oldlocation.equals(location)) {
+            boolean samelinesys = oldlinesys == null || linesys.equals(oldlinesys);
+            // If location or linesys is different then stat is "drive" by default
+            if (oldlocation != null && !oldlocation.equals(location) || !samelinesys) {
                 stat = "drive";
+            }
+            // For old line (if different)
+            if (!samelinesys) {
+                statimelist oldstl = stlmap.get(oldlinesys);
+                for (int i = 0; i < oldstl.getSize(); i++) {
+                    String stacode = oldstl.getStacode().get(i);
+                    String plat = oldstl.getPlat().get(i);
+                    String staplat = stacode + "." + plat;
+                    // Prepare info for platpidssys
+                    int statime = getTimeToStation(trainname, stacode);
+                    deprec dr = new deprec(trainname, statime);
+                    // Get platpidssys
+                    platpidssys pps = !pidsrecmap.containsKey(staplat) ? new platpidssys(stacode, plat) : pidsrecmap.get(staplat);
+                    // Delete all
+                    pps.removeDeprec(dr);
+                    pidsrecmap.put(staplat, pps);
+                }
             }
             int time; // Time left in seconds
             if (l3.length > 1) {
@@ -65,7 +84,7 @@ public class updatesign extends SignAction {
             }
             trainlist.save();
             // For line
-            for (int i = 0; i < stl.getStacode().size(); i++) {
+            for (int i = 0; i < stl.getSize(); i++) {
                 String stacode = stl.getStacode().get(i);
                 String plat = stl.getPlat().get(i);
                 String staplat = stacode + "." + plat;
@@ -120,7 +139,7 @@ public class updatesign extends SignAction {
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
                     trainlist.dataconfig.set(trainname, null);
                     tlsave = true;
-                },1);
+                }, 1);
             }
         }
         // Save to trainlist at once at end for all
