@@ -70,7 +70,7 @@ class cmds implements CommandExecutor, TabCompleter, Listener {
                                         loclist.add(b2.getLocation());
                                         // If fail then end
                                         if (!(b2.getState() instanceof Sign)) {
-                                            playerErrorMsg(sender, String.format("The selected sign does not match height = %d and width = %d of the style %s.", height, width, style));
+                                            playerErrorMsg(sender, String.format("The sign is not of %sheight = %d%s and %swidth = %d%s of the %sstyle %s%s.", ChatColor.WHITE, height, ChatColor.RED, ChatColor.WHITE, width, ChatColor.RED, ChatColor.WHITE, style, ChatColor.RED));
                                             return true;
                                         }
                                     }
@@ -78,17 +78,17 @@ class cmds implements CommandExecutor, TabCompleter, Listener {
                             }
                             // Set arguments
                             String pidspath = sta + "." + plat + ".locations." + pidsno;
-                            String locstr = ChatColor.GRAY + " (" + b.getLocation().getX() + " " + + b.getLocation().getY() + " " + + b.getLocation().getZ() + ")";
+                            String locstr = ChatColor.WHITE + pidspath + (style.equals("null") ? "" : ChatColor.GREEN + " with style " + ChatColor.WHITE + style) + ChatColor.GREEN + "." + ChatColor.GRAY + " (" + b.getLocation().getBlockX() + " " + b.getLocation().getBlockY() + " " + b.getLocation().getBlockZ() + ")";
                             if (!style.equals("null")) {
                                 for (int i = 0; i < loclist.size(); i++) {
                                     stapidslist.dataconfig.set(pidspath + ".pos." + i, loclist.get(i));
                                 }
                                 stapidslist.dataconfig.set(pidspath + ".style", style);
-                                sender.sendMessage(INPIDS_HEAD + ChatColor.GREEN + "Successfully set PIDS in " + pidspath + "." + locstr);
+                                sender.sendMessage(INPIDS_HEAD + ChatColor.GREEN + "PIDS set in " + locstr);
                             } else {
                                 // If style is "null" then remove PIDS from stapidslist
                                 stapidslist.dataconfig.set(pidspath, null);
-                                sender.sendMessage(INPIDS_HEAD + ChatColor.GREEN + "Successfully removed PIDS in " + pidspath + "." + locstr);
+                                sender.sendMessage(INPIDS_HEAD + ChatColor.GREEN + "PIDS removed in " + locstr);
                             }
                             stapidslist.save();
                         } else {
