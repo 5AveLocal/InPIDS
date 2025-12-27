@@ -112,10 +112,8 @@ class pidsupdate {
                 String thispospath = pospath + "." + i + "." + displine;
                 try {
                     // Update only if sign is different than last tick (requires non-null), or train is null
-                    // If train has passed station then set to blank
-                    boolean dispstrnull = dispstr == null;
-                    boolean passedsta = getTimeToStation(trainname, stacode) == Integer.MIN_VALUE;
-                    String setstr = dispstrnull || passedsta ? "" : dispstr;
+                    // If dispstr is null or train has passed station then set to blank
+                    String setstr = dispstr == null || getTimeToStation(trainname, stacode) == Integer.MIN_VALUE ? "" : dispstr;
                     signtotext.putIfAbsent(thispospath, "");
                     if (!signtotext.get(thispospath).equals(setstr)) {
                         Location setloc = loclist.get(i);
