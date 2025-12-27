@@ -3,17 +3,20 @@ package me.fiveave.inpids;
 import com.bergerkiller.bukkit.tc.signactions.SignAction;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.Set;
 import java.util.logging.Level;
 
 public final class main extends JavaPlugin {
     static final String INPIDS_HEAD = ChatColor.AQUA + "[" + ChatColor.YELLOW + "InPIDS" + ChatColor.AQUA + "] ";
     static final HashMap<String, statimelist> stlmap = new HashMap<>();
     static final HashMap<String, platpidssys> pidsrecmap = new HashMap<>();
+    static final HashMap<String, stylerec> stylemap = new HashMap<>();
     static main plugin;
     static boolean tlClock;
     static absyaml linetypelist, stylelist, trainlist, stapidslist;
@@ -57,6 +60,12 @@ public final class main extends JavaPlugin {
         }
         if (stlmap.isEmpty()) {
             errorLog(new Exception("Could not find .csv files in statimelist folder!"));
+        }
+        // Save all stylerec into HashMap to prevent repeated data fetching from files
+        ConfigurationSection stylecs = Objects.requireNonNull(stylelist.dataconfig);
+        Set<String> stylenameset = stylecs.getKeys(false);
+        for (String stylename : stylenameset) {
+            stylemap.put(stylename, new stylerec(stylename));
         }
         // Register commands and signs
         Objects.requireNonNull(this.getCommand("inpids")).setExecutor(new cmds());

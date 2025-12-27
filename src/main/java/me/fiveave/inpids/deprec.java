@@ -1,6 +1,6 @@
 package me.fiveave.inpids;
 
-public class deprec {
+class deprec {
     // Departure records in a PIDS display
     private final String name; // Name of data (e.g. train name, info name)
     private int time; // -1 for N/A
@@ -10,15 +10,15 @@ public class deprec {
         this.time = time;
     }
 
-    public int getTime() {
+    int getTime() {
         return time;
     }
 
-    public void setTime(int time) {
+    void setTime(int time) {
         this.time = time;
     }
 
-    public String getName() {
+    String getName() {
         return name;
     }
 }

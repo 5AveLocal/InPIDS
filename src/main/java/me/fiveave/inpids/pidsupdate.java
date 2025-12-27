@@ -10,7 +10,7 @@ import java.util.*;
 import static me.fiveave.inpids.main.*;
 import static me.fiveave.inpids.statimelist.getTimeToStation;
 
-public class pidsupdate {
+class pidsupdate {
 
     static final HashMap<String, String> signtotext = new HashMap<>();
 
@@ -24,8 +24,8 @@ public class pidsupdate {
         };
     }
 
-    private static String[] getSplitStyleMsg(String pidsstyle, String path) {
-        return Objects.requireNonNull(stylelist.dataconfig.getString(pidsstyle + ".messages." + path)).split("\\|");
+    private static String[] getSplitStyleMsg(stylerec style, String path) {
+        return Objects.requireNonNull(style.getMessages().get(path)).split("\\|");
     }
 
     // Update single PIDS display on platform
@@ -34,11 +34,12 @@ public class pidsupdate {
         String indexpath = stacode + "." + plat + ".locations." + pidsindex;
         String stylepath = indexpath + ".style";
         String pidsstyle = stapidslist.dataconfig.getString(stylepath);
+        stylerec sr = stylemap.get(pidsstyle);
         // Get data from stylelist.yml
-        int height = stylelist.dataconfig.getInt(pidsstyle + ".height");
-        List<Integer> lines = stylelist.dataconfig.getIntegerList(pidsstyle + ".lines");
-        int loopinterval = stylelist.dataconfig.getInt(pidsstyle + ".loopinterval");
-        int flashinterval = stylelist.dataconfig.getInt(pidsstyle + ".flashinterval");
+        int height = sr.getHeight();
+        List<Integer> lines = sr.getLines();
+        int loopinterval = sr.getLoopinterval();
+        int flashinterval = sr.getFlashinterval();
         String pospath = staplat + ".locations." + pidsindex + ".pos";
         ConfigurationSection cs = Objects.requireNonNull(stapidslist.dataconfig.getConfigurationSection(pospath));
         Set<String> locset = cs.getKeys(false);
@@ -52,7 +53,7 @@ public class pidsupdate {
         for (int count = 0; count < linesize * height; count++) {
             for (int i = 0; i < signsize; i++) {
                 // Variables
-                String onestyle = stylelist.dataconfig.getString(pidsstyle + ".style." + i);
+                String onestyle = sr.getStyles().get(i);
                 // Display variables
                 int displine = lines.get(count % linesize);
                 String dispstr = null;
@@ -86,14 +87,14 @@ public class pidsupdate {
                             boolean stop = stl.getStop().get(stl.getStaIndex(stacode));
                             boolean atterminus = stl.getStacode().get(terminusindex).equals(stacode);
                             String dest = destination[thislang];
-                            String trainarr = getSplitStyleMsg(pidsstyle, "trainarr")[thislang];
-                            String trainpass = getSplitStyleMsg(pidsstyle, "trainpass")[thislang];
-                            String trainstopping = getSplitStyleMsg(pidsstyle, "trainstopping")[thislang];
-                            String typepass = getSplitStyleMsg(pidsstyle, "typepass")[thislang];
-                            String terminus = getSplitStyleMsg(pidsstyle, "terminus")[thislang];
-                            String notinservice = getSplitStyleMsg(pidsstyle, "notinservice")[thislang];
-                            String min = getSplitStyleMsg(pidsstyle, "min")[thislang];
-                            //String[] delay = Objects.requireNonNull(stylelist.dataconfig.getString(pidsstyle + ".messages.delay")).split("\\|");
+                            String trainarr = getSplitStyleMsg(sr, "trainarr")[thislang];
+                            String trainpass = getSplitStyleMsg(sr, "trainpass")[thislang];
+                            String trainstopping = getSplitStyleMsg(sr, "trainstopping")[thislang];
+                            String typepass = getSplitStyleMsg(sr, "typepass")[thislang];
+                            String terminus = getSplitStyleMsg(sr, "terminus")[thislang];
+                            String notinservice = getSplitStyleMsg(sr, "notinservice")[thislang];
+                            String min = getSplitStyleMsg(sr, "min")[thislang];
+                            //String delay = getSplitStyleMsg(sr, "delay")[thislang];
                             // Display string replacements
                             dispstr = onelangstyle.replaceAll("%type", atterminus ? notinservice : (stop ? type[thislang] : typepass))
                                     .replaceAll("%line", line[thislang])

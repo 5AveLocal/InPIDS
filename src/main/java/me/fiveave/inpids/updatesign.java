@@ -15,8 +15,7 @@ import java.util.Set;
 import static me.fiveave.inpids.main.*;
 import static me.fiveave.inpids.statimelist.getTimeToStation;
 
-public class updatesign extends SignAction {
-
+class updatesign extends SignAction {
 
     @Override
     public boolean match(SignActionEvent info) {

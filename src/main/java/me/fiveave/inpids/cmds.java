@@ -62,8 +62,9 @@ class cmds implements CommandExecutor, TabCompleter, Listener {
                             // Only check if style is not "null"
                             if (!style.equals("null")) {
                                 // Get style height and width, check if style can be used
-                                int width = stylelist.dataconfig.getInt(style + ".width");
-                                int height = stylelist.dataconfig.getInt(style + ".height");
+                                stylerec sr = stylemap.get(style);
+                                int width = sr.getWidth();
+                                int height = sr.getHeight();
                                 for (int h = 0; h < height; h++) {
                                     for (int w = 0; w < width; w++) {
                                         Block b2 = b.getRelative(leftbf, w).getRelative(BlockFace.DOWN, h);

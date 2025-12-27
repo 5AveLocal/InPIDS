@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 import static me.fiveave.inpids.main.*;
 
-public class statimelist {
+class statimelist {
     private final File file;
     private final ArrayList<String> stacode;
     private final ArrayList<String[]> staname;
@@ -28,7 +28,7 @@ public class statimelist {
         readFile();
     }
 
-    public static int getTimeToStation(String trainname, String targetsta) {
+    static int getTimeToStation(String trainname, String targetsta) {
         String linesys = trainlist.dataconfig.getString(trainname + ".linesys");
         String location = trainlist.dataconfig.getString(trainname + ".location");
         int time = trainlist.dataconfig.getInt(trainname + ".time");
@@ -50,19 +50,19 @@ public class statimelist {
         return totaltime;
     }
 
-    public ArrayList<Integer> getTime() {
+    ArrayList<Integer> getTime() {
         return time;
     }
 
-    public ArrayList<String> getPlat() {
+    ArrayList<String> getPlat() {
         return plat;
     }
 
-    public ArrayList<String[]> getStaname() {
+    ArrayList<String[]> getStaname() {
         return staname;
     }
 
-    public ArrayList<String> getStacode() {
+    ArrayList<String> getStacode() {
         return stacode;
     }
 
@@ -107,7 +107,7 @@ public class statimelist {
         }
     }
 
-    public int getStaIndex(String sta) {
+    int getStaIndex(String sta) {
         for (int i = 0; i < size; i++) {
             if (stacode.get(i).equals(sta)) {
                 return i;
@@ -117,11 +117,11 @@ public class statimelist {
         return -1;
     }
 
-    public ArrayList<Boolean> getStop() {
+    ArrayList<Boolean> getStop() {
         return stop;
     }
 
-    public int getSize() {
+    int getSize() {
         return size;
     }
 }
