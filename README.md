@@ -21,7 +21,7 @@ Please set up new PIDS monitor display styles if needed.<br/>
 and `flashinterval` is the time interval in a flash (when train is arriving), both intervals are measured in ticks (1/20 seconds).<br/>
 Use `|` (vertical bar) for separating different languages.<br/>
 Type `\&` to get `&`, as `&` is for color codes in text.
-There are a few placeholders that you can use:<br/>
+There are a few placeholders that you can use:
 - `%type` for train type
 - `%line` for line
 - `%dest` for destination
@@ -30,11 +30,11 @@ There are a few placeholders that you can use:<br/>
 There is generally no need to modify this file, as you can always use the `/inpids setpids` command to register / remove a PIDS monitor.
 
 ## ⚙️ Commands
-`/inpids setpids <station> <platform> <style> <pidsno>` to register / remove a PIDS monitor,<br/>
-where `<station>` is the station code,<br/>
-`<platform>` is the platform number (not limited to numbers),<br/>
-`<style>` is the style of the PIDS monitor specified in `stylelist.yml`, or type `null` to remove the PIDS monitor,<br/>
-and `<pidsno>` is the PIDS monitor number.
+`/inpids setpids <station> <platform> <style> <pidsno>` to register / remove a PIDS monitor, where
+- `<station>` is the station code
+- `<platform>` is the platform number (not limited to numbers)
+- `<style>` is the style of the PIDS monitor specified in `stylelist.yml`, or type `null` to remove the PIDS monitor
+- `<pidsno>` is the PIDS monitor number
 
 ## 🛑 Known issues
 None<br/>
