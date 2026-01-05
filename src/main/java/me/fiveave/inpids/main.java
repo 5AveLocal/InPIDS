@@ -12,6 +12,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Level;
 
+import static me.fiveave.inpids.pidsupdate.updateSinglePidsDisplay;
+
 public final class main extends JavaPlugin {
     static final String INPIDS_HEAD = ChatColor.AQUA + "[" + ChatColor.YELLOW + "InPIDS" + ChatColor.AQUA + "] ";
     static final HashMap<String, statimelist> stlmap = new HashMap<>();
@@ -76,6 +78,14 @@ public final class main extends JavaPlugin {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+        // Clear all PIDS displays
+        for (String pidsrecstr : pidsrecmap.keySet()) {
+            platpidssys pps = pidsrecmap.get(pidsrecstr);
+            pps.depreclist.clear();
+            for (String pids : pps.pidsset) {
+                updateSinglePidsDisplay(pps.stacode, pps.plat, pps.depreclist, pids);
+            }
+        }
         trainlist.save();
         stapidslist.save();
         SignAction.unregister(var0);
