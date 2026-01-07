@@ -15,9 +15,7 @@ import java.util.Set;
 import static me.fiveave.inpids.main.*;
 import static me.fiveave.inpids.statimelist.getTimeToStation;
 
-/**
- * inpidsupdate sign class
- */
+/// inpidsupdate sign class
 class updatesign extends SignAction {
 
     @Override
@@ -128,9 +126,7 @@ class updatesign extends SignAction {
         return true;
     }
 
-    /**
-     * Clock loop (every tick) for all trains in trainlist.yml
-     */
+    /// Clock loop (every tick) for all trains in trainlist.yml
     void trainlistClockLoop() {
         Set<String> trainnameset = trainlist.dataconfig.getKeys(false);
         for (String trainname : trainnameset) {

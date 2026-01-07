@@ -12,31 +12,19 @@ import static me.fiveave.inpids.main.*;
 import static me.fiveave.inpids.pidsupdate.updateSinglePidsDisplay;
 import static me.fiveave.inpids.statimelist.getTimeToStation;
 
-/**
- * Platform PIDS system class
- */
+/// Platform PIDS system class
 class platpidssys {
-    /**
-     * Set of PIDS displays
-     */
+    /// Set of PIDS displays
     Set<String> pidsset;
-    /**
-     * Station code
-     */
+    /// Station code
     String stacode;
-    /**
-     * Platform number
-     */
+    /// Platform number
     String plat;
-    /**
-     * List of departure record lists
-     */
+    /// List of departure record lists
     ArrayList<deprec> depreclist;
 
-    /**
-     * @param stacode Station code
-     * @param plat    Platform number
-     */
+    /// @param stacode Station code
+    /// @param plat    Platform number
     platpidssys(String stacode, String plat) {
         depreclist = new ArrayList<>();
         pidsset = new HashSet<>();
@@ -52,9 +40,7 @@ class platpidssys {
         Bukkit.getScheduler().runTaskLater(plugin, this::clock, 1);
     }
 
-    /**
-     * Platform PIDS loop clock (every tick)
-     */
+    /// Platform PIDS loop clock (every tick)
     void clock() {
         // Update time
         ArrayList<deprec> deldrlist = new ArrayList<>();
@@ -80,11 +66,9 @@ class platpidssys {
         Bukkit.getScheduler().runTaskLater(plugin, this::clock, 1);
     }
 
-    /**
-     * Adds of modifies departures record
-     *
-     * @param dr deprec object
-     */
+    /// Adds of modifies departures record
+    ///
+    /// @param dr deprec object
     void addOrModifyDeprec(deprec dr) {
         boolean found = false;
         for (deprec dr0 : depreclist) {
@@ -101,11 +85,9 @@ class platpidssys {
         sortPidsList();
     }
 
-    /**
-     * Removes departure record
-     *
-     * @param dr deprec object
-     */
+    /// Removes departure record
+    ///
+    /// @param dr deprec object
     void removeDeprec(deprec dr) {
         for (deprec dr0 : depreclist) {
             /* deprec object may be newly created and thus has different signatures,
@@ -119,9 +101,7 @@ class platpidssys {
         }
     }
 
-    /**
-     * Sorts the PIDS list based on arrival time
-     */
+    /// Sorts the PIDS list based on arrival time
     void sortPidsList() {
         depreclist.sort(Comparator.comparingDouble(deprec::getTime));
     }

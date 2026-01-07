@@ -21,15 +21,11 @@ import java.util.List;
 import static me.fiveave.inpids.main.*;
 import static me.fiveave.inpids.pidsupdate.getLeftbf;
 
-/**
- * Command class
- */
+/// Command class
 class cmds implements CommandExecutor, TabCompleter, Listener {
 
-    /**
-     * @param sender Command sender
-     * @param x      Error message to be sent to command sender
-     */
+    /// @param sender Command sender
+    /// @param x      Error message to be sent to command sender
     private static void playerErrorMsg(CommandSender sender, String x) {
         sender.sendMessage(INPIDS_HEAD + ChatColor.RED + x);
     }

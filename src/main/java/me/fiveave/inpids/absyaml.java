@@ -13,35 +13,21 @@ import java.util.Set;
 
 import static me.fiveave.inpids.main.errorLog;
 
-/**
- * Abstract yaml class
- */
+/// Abstract yaml class
 class absyaml {
-    /**
-     * This plugin
-     */
+    /// This plugin
     protected final main plugin;
-    /**
-     * Old configuration (if have)
-     */
+    /// Old configuration (if have)
     final FileConfiguration oldconfig;
-    /**
-     * File name
-     */
+    /// File name
     private final String fileName;
-    /**
-     * FileConfiguration object
-     */
+    /// FileConfiguration object
     FileConfiguration dataconfig;
-    /**
-     * File object
-     */
+    /// File object
     private File file;
 
-    /**
-     * @param plugin   This plugin
-     * @param fileName yaml file name
-     */
+    /// @param plugin   This plugin
+    /// @param fileName yaml file name
     absyaml(main plugin, String fileName) {
         this.plugin = plugin;
         this.fileName = fileName;
@@ -54,9 +40,7 @@ class absyaml {
         reloadConfig();
     }
 
-    /**
-     * Reloads config
-     */
+    /// Reloads config
     void reloadConfig() {
         InputStream stream = plugin.getResource(fileName);
         if (stream != null) {
@@ -100,9 +84,7 @@ class absyaml {
         }
     }
 
-    /**
-     * Saves config
-     */
+    /// Saves config
     void save() {
         if (dataconfig == null || file == null) {
             return;
@@ -114,9 +96,7 @@ class absyaml {
         }
     }
 
-    /**
-     * Saves default config
-     */
+    /// Saves default config
     void saveDefaultConfig() {
         if (file == null) {
             file = new File(plugin.getDataFolder(), fileName);
