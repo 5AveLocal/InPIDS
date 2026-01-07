@@ -10,10 +10,22 @@ import java.util.*;
 import static me.fiveave.inpids.main.*;
 import static me.fiveave.inpids.statimelist.getTimeToStation;
 
+/**
+ * PIDS updating class
+ */
 class pidsupdate {
 
+    /**
+     * HashMap of text on sign
+     */
     static final HashMap<String, String> signtotext = new HashMap<>();
 
+    /**
+     * Gets BlockFace relative to left of sign
+     *
+     * @param bf BlockFace of the sign
+     * @return BlockFace relative to left of sign
+     */
     static BlockFace getLeftbf(BlockFace bf) {
         // Get BlockFace relative to left of sign
         return switch (bf) {
@@ -25,10 +37,25 @@ class pidsupdate {
         };
     }
 
+    /**
+     * Splits message into different languages with specified style
+     *
+     * @param style stylerec of the PIDS display
+     * @param path  Path of item (message) to be fetched
+     * @return String array of messages in different languages
+     */
     private static String[] getSplitStyleMsg(stylerec style, String path) {
         return Objects.requireNonNull(style.getMessages().get(path)).split("\\|");
     }
 
+    /**
+     * Updates a single PIDS display on platform
+     *
+     * @param stacode    Station code
+     * @param plat       Platform number
+     * @param depreclist Departure record list
+     * @param pidsindex  PIDS display number
+     */
     // Update single PIDS display on platform
     static void updateSinglePidsDisplay(String stacode, String plat, ArrayList<deprec> depreclist, String pidsindex) {
         String staplat = stacode + "." + plat;

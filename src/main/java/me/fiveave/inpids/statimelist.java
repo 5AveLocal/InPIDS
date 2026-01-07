@@ -8,15 +8,44 @@ import java.util.ArrayList;
 
 import static me.fiveave.inpids.main.*;
 
+/**
+ * Station time list class
+ */
 class statimelist {
+    /**
+     * File object
+     */
     private final File file;
+    /**
+     * List of station codes
+     */
     private final ArrayList<String> stacode;
+    /**
+     * List of station names
+     */
     private final ArrayList<String[]> staname;
+    /**
+     * List of platforms
+     */
     private final ArrayList<String> plat;
+    /**
+     * List of arrival times
+     */
     private final ArrayList<Integer> time;
+    /**
+     * List of booleans on whether train will stop at station
+     */
     private final ArrayList<Boolean> stop;
+    /**
+     * Number of stations
+     */
     private int size;
 
+    /**
+     * Station time list object
+     *
+     * @param linesys Line system (line, train type, destination, etc.)
+     */
     // Initialize constructor
     statimelist(String linesys) {
         file = new File(plugin.getDataFolder() + "/statimelist/" + linesys + ".csv");
@@ -28,6 +57,13 @@ class statimelist {
         readFile();
     }
 
+    /**
+     * Gets time needed to go to target station
+     *
+     * @param trainname Train name
+     * @param targetsta Target station
+     * @return Time to target station
+     */
     static int getTimeToStation(String trainname, String targetsta) {
         String linesys = trainlist.dataconfig.getString(trainname + ".linesys");
         String location = trainlist.dataconfig.getString(trainname + ".location");
@@ -51,22 +87,37 @@ class statimelist {
         return totaltime;
     }
 
+    /**
+     * @return List of times to station on linesys
+     */
     ArrayList<Integer> getTime() {
         return time;
     }
 
+    /**
+     * @return List of platforms on linesys
+     */
     ArrayList<String> getPlat() {
         return plat;
     }
 
+    /**
+     * @return List of station names on linesys
+     */
     ArrayList<String[]> getStaname() {
         return staname;
     }
 
+    /**
+     * @return List of station codes on linesys
+     */
     ArrayList<String> getStacode() {
         return stacode;
     }
 
+    /**
+     * Reads .csv file in statimelist folder
+     */
     // Read .csv
     private void readFile() {
         try {
@@ -112,6 +163,12 @@ class statimelist {
         }
     }
 
+    /**
+     * Gets the station index for a station name
+     *
+     * @param sta Station name
+     * @return Station index
+     */
     int getStaIndex(String sta) {
         for (int i = 0; i < size; i++) {
             if (stacode.get(i).equals(sta)) {
@@ -122,10 +179,16 @@ class statimelist {
         return -1;
     }
 
+    /**
+     * @return List of booleans on whether train will stop at station on linesys
+     */
     ArrayList<Boolean> getStop() {
         return stop;
     }
 
+    /**
+     * @return Number of stations on linesys
+     */
     int getSize() {
         return size;
     }

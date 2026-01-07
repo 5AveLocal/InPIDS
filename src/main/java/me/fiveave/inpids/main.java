@@ -14,25 +14,80 @@ import java.util.logging.Level;
 
 import static me.fiveave.inpids.pidsupdate.updateSinglePidsDisplay;
 
+/**
+ * Main class
+ */
 public final class main extends JavaPlugin {
+    /**
+     * InPIDS plugin message header
+     */
     static final String INPIDS_HEAD = ChatColor.AQUA + "[" + ChatColor.YELLOW + "InPIDS" + ChatColor.AQUA + "] ";
+    /**
+     * HashMap of station time lists
+     */
     static final HashMap<String, statimelist> stlmap = new HashMap<>();
+    /**
+     * HashMap of platform PIDS records
+     */
     static final HashMap<String, platpidssys> pidsrecmap = new HashMap<>();
+    /**
+     * HashMap of style records
+     */
     static final HashMap<String, stylerec> stylemap = new HashMap<>();
+    /**
+     * This plugin
+     */
     static main plugin;
+    /**
+     * Boolean on whether train list clock is running
+     */
     static boolean tlClock;
-    static absyaml linetypelist, stylelist, trainlist, stapidslist;
-    static boolean tlsave, splsave;
+    /**
+     * linetypelist.yml
+     */
+    static absyaml linetypelist, /**
+     * stylelist.yml
+     */
+    stylelist, /**
+     * trainlist.yml
+     */
+    trainlist, /**
+     * stapidslist.yml
+     */
+    stapidslist;
+    /**
+     * Boolean on whether trainlist.yml should be saved
+     */
+    static boolean tlsave, /**
+     * Boolean on whether stapidslist.yml should be saved
+     */
+    splsave;
+    /**
+     * inpidsupdate sign object
+     */
     final updatesign var0 = new updatesign();
 
+    /**
+     * Error log method
+     *
+     * @param e Exception
+     */
     static void errorLog(Exception e) {
         Bukkit.getLogger().log(Level.SEVERE, e.getMessage());
     }
 
+    /**
+     * Returns a boolean on whether current tick is 0 in a second
+     *
+     * @return Boolean on whether current tick is 0 in a second
+     */
     static boolean isAtZeroTick() {
         return Math.toIntExact((System.currentTimeMillis() / 50) % 20) == 0;
     }
 
+    /**
+     * Plugin enable method
+     */
     @Override
     public void onEnable() {
         // Plugin startup logic
@@ -77,6 +132,9 @@ public final class main extends JavaPlugin {
         SignAction.register(var0);
     }
 
+    /**
+     * Plugin disable method
+     */
     @Override
     public void onDisable() {
         // Plugin shutdown logic
