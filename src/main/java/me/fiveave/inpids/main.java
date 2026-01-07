@@ -40,10 +40,12 @@ public final class main extends JavaPlugin {
         tlClock = false;
         tlsave = false;
         splsave = false;
+        // Load all .yml files
         linetypelist = new absyaml(this, "linetypelist.yml");
         stylelist = new absyaml(this, "stylelist.yml");
         trainlist = new absyaml(this, "trainlist.yml");
         stapidslist = new absyaml(this, "stapidslist.yml");
+        // Default statimelist "iwakinoup"
         String iwakinoup = "statimelist/iwakinoup.csv";
         if (!new File(plugin.getDataFolder() + "/" + iwakinoup).exists()) {
             plugin.saveResource(iwakinoup, false);
@@ -86,6 +88,7 @@ public final class main extends JavaPlugin {
                 updateSinglePidsDisplay(pps.stacode, pps.plat, pps.depreclist, pids);
             }
         }
+        // Save files
         trainlist.save();
         stapidslist.save();
         SignAction.unregister(var0);

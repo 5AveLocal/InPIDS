@@ -54,7 +54,7 @@ class platpidssys {
         for (String pids : pidsset) {
             updateSinglePidsDisplay(stacode, plat, depreclist, pids);
         }
-        // Loop every tick unless depreclist is empty
+        // TODO: test if this works: Loop every tick unless depreclist is empty
         Bukkit.getScheduler().runTaskLater(plugin, this::clock, 1);
     }
 
@@ -76,7 +76,9 @@ class platpidssys {
 
     void removeDeprec(deprec dr) {
         for (deprec dr0 : depreclist) {
-            // deprec object may be newly created and thus has different signatures, even though contents of both are the same
+            /* deprec object may be newly created and thus has different signatures,
+            even though contents of both are the same,
+            so just compare train name and arrival time is sufficient */
             if (dr0.getName().equals(dr.getName()) && dr0.getTime() == dr.getTime()) {
                 depreclist.remove(dr0);
                 sortPidsList();

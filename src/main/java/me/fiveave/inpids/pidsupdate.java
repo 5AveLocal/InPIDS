@@ -15,6 +15,7 @@ class pidsupdate {
     static final HashMap<String, String> signtotext = new HashMap<>();
 
     static BlockFace getLeftbf(BlockFace bf) {
+        // Get BlockFace relative to left of sign
         return switch (bf) {
             case EAST -> BlockFace.NORTH;
             case NORTH -> BlockFace.WEST;

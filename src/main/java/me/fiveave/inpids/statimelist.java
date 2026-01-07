@@ -44,6 +44,7 @@ class statimelist {
         if (targetstaindex < currentstaindex) {
             return Integer.MIN_VALUE;
         }
+        // Is station in loop this station?
         for (int i = currentstaindex; i <= targetstaindex; i++) {
             totaltime += i == currentstaindex ? time : stl.getTime().get(i);
         }
@@ -70,6 +71,7 @@ class statimelist {
     private void readFile() {
         try {
             int length = 0;
+            // Temporary ArrayLists
             ArrayList<String> stacodelist = new ArrayList<>();
             ArrayList<String[]> stanamelist = new ArrayList<>();
             ArrayList<String> platlist = new ArrayList<>();
@@ -77,6 +79,7 @@ class statimelist {
             ArrayList<Boolean> stoplist = new ArrayList<>();
             BufferedReader br = new BufferedReader(new FileReader(file));
             String line;
+            // Read all lines in file
             while ((line = br.readLine()) != null) {
                 int namesize = line.split(",").length - 4;
                 String[] linesplit = line.split(",");
@@ -95,11 +98,13 @@ class statimelist {
                 // Increase length
                 length++;
             }
+            // Add all items into list
             stacode.addAll(stacodelist);
             staname.addAll(stanamelist);
             plat.addAll(platlist);
             time.addAll(timelist);
             stop.addAll(stoplist);
+            // Set length
             size = length;
 
         } catch (IOException e) {

@@ -56,6 +56,7 @@ class updatesign extends SignAction {
                     int statime = getTimeToStation(trainname, stacode);
                     deprec dr = new deprec(trainname, statime);
                     // Get platpidssys
+                    // TODO: Check if creating new is even needed (Idea: Display not set for platform, why create new one and start clock?)
                     platpidssys pps = !pidsrecmap.containsKey(staplat) ? new platpidssys(stacode, plat) : pidsrecmap.get(staplat);
                     // Delete all
                     pps.removeDeprec(dr);
@@ -68,6 +69,7 @@ class updatesign extends SignAction {
                     time = Integer.parseInt(l3[1]);
                 } catch (Exception e) {
                     stat = l3[1];
+                    // TODO: Check if setting time to 0 makes sense
                     time = 0;
                 }
             } else {
