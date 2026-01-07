@@ -38,10 +38,13 @@ There is generally no need to modify this file, as you can always use the `/inpi
 - `<pidsno>` is the PIDS monitor number
 
 ## 🪧 Signs
-`[+train]`</br>
-`inpidsupdate`</br>
-`<linesys>`</br>
-`<location> <stat/time>`, where<br/>
+```
+[+train]
+inpidsupdate
+<linesys>
+<location> <stat/time>
+```
+where
 - `<linesys>` is a line system (line with specific train type, destination, etc.)
 - `<location>` is location of train
 - `<stat/time>` is train status (can be `stop` or `arrive`), or arrival time of train
