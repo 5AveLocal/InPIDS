@@ -28,14 +28,8 @@ public final class main extends JavaPlugin {
     static main plugin;
     /// Boolean on whether train list clock is running
     static boolean tlClock;
-    /// linetypelist.yml
-    static absyaml linetypelist, /// stylelist.yml
-    stylelist, /// trainlist.yml
-    trainlist, /// stapidslist.yml
-    stapidslist;
-    /// Boolean on whether trainlist.yml should be saved
-    static boolean tlsave, /// Boolean on whether stapidslist.yml should be saved
-    splsave;
+    static absyaml linetypelist, stylelist, trainlist, stapidslist;
+    static boolean tlsave, splsave;
     /// inpidsupdate sign object
     final updatesign var0 = new updatesign();
 

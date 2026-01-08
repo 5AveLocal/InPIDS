@@ -62,7 +62,6 @@ class platpidssys {
         for (String pids : pidsset) {
             updateSinglePidsDisplay(stacode, plat, depreclist, pids);
         }
-        // TODO: test if this works: Loop every tick unless depreclist is empty
         Bukkit.getScheduler().runTaskLater(plugin, this::clock, 1);
     }
 
