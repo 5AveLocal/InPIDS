@@ -61,6 +61,8 @@ a PIDS monitor.
 
 ### inpidsupdate
 
+Update PIDS displays along the line
+
 ```
 [+train]
 inpidsupdate
