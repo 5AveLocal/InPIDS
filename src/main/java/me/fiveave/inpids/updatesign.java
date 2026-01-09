@@ -107,6 +107,7 @@ class updatesign extends SignAction {
                     pidsrecmap.put(staplat, pps);
                 } else if (statime != Integer.MIN_VALUE) {
                     platpidssys pps = new platpidssys(stacode, plat);
+                    pps.addOrModifyDeprec(dr);
                     pidsrecmap.put(staplat, pps);
                 }
             }
