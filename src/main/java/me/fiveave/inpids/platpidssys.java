@@ -22,10 +22,13 @@ class platpidssys {
     String plat;
     /// List of departure record lists
     ArrayList<deprec> depreclist;
+    /// Stop clock
+    boolean stopclock;
 
     /// @param stacode Station code
     /// @param plat    Platform number
     platpidssys(String stacode, String plat) {
+        stopclock = false;
         depreclist = new ArrayList<>();
         pidsset = new HashSet<>();
         this.stacode = stacode;
@@ -62,7 +65,18 @@ class platpidssys {
         for (String pids : pidsset) {
             updateSinglePidsDisplay(stacode, plat, depreclist, pids);
         }
-        Bukkit.getScheduler().runTaskLater(plugin, this::clock, 1);
+        // If clock continues
+        if (!stopclock) {
+            Bukkit.getScheduler().runTaskLater(plugin, this::clock, 1);
+        } else {
+            // Remove object from pidsrecmap to allow for restart
+            String staplat = stacode + "." + plat;
+            pidsrecmap.remove(staplat);
+        }
+        // If depreclist is empty, stop clock in next tick
+        if (depreclist.isEmpty()) {
+            stopclock = true;
+        }
     }
 
     /// Adds of modifies departures record

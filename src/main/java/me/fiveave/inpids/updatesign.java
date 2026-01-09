@@ -93,16 +93,22 @@ class updatesign extends SignAction {
                 // Prepare info for platpidssys
                 int statime = getTimeToStation(trainname, stacode);
                 deprec dr = new deprec(trainname, statime);
-                // Create new or get platpidssys
-                platpidssys pps = !pidsrecmap.containsKey(staplat) ? new platpidssys(stacode, plat) : pidsrecmap.get(staplat);
-                // Delete if passed station or train is null, add or modify if exists and will arrive
-                if (statime == Integer.MIN_VALUE) {
-                    pps.removeDeprec(dr);
-                } else {
-                    // Add or modify
-                    pps.addOrModifyDeprec(dr);
+                // Get if exists, if not then see if train has passed station or not
+                if (pidsrecmap.containsKey(staplat)) {
+                    platpidssys pps = pidsrecmap.get(staplat);
+                    // Delete, or add or modify?
+                    if (statime == Integer.MIN_VALUE) {
+                        // Delete if passed station or train is null
+                        pps.removeDeprec(dr);
+                    } else {
+                        // Add or modify if exists and will arrive
+                        pps.addOrModifyDeprec(dr);
+                    }
+                    pidsrecmap.put(staplat, pps);
+                } else if (statime != Integer.MIN_VALUE){
+                    platpidssys pps = new platpidssys(stacode, plat);
+                    pidsrecmap.put(staplat, pps);
                 }
-                pidsrecmap.put(staplat, pps);
             }
             // Start trainlist clock loop (if not yet started)
             if (!tlClock) {
