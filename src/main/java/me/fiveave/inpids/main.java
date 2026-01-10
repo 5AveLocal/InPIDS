@@ -37,7 +37,7 @@ public final class main extends JavaPlugin {
     ///
     /// @param e Exception
     static void errorLog(Exception e) {
-        Bukkit.getLogger().log(Level.SEVERE, e.getMessage());
+        Bukkit.getLogger().log(Level.SEVERE, ChatColor.stripColor(INPIDS_HEAD) + "An error occurred!", e);
     }
 
     /// Returns a boolean on whether current tick is 0 in a second
