@@ -114,13 +114,13 @@ class pidsupdate {
                             String min = getSplitStyleMsg(sr, "min")[thislang];
                             //String delay = getSplitStyleMsg(sr, "delay")[thislang];
                             // Display string replacements
-                            dispstr = onelangstyle.replaceAll("%type", atterminus ? notinservice : (stop ? type[thislang] : typepass))
-                                    .replaceAll("%line", line[thislang])
-                                    .replaceAll("%dest", String.valueOf(!atterminus ? dest : terminus))
-                                    .replaceAll("%tmin", String.valueOf(stat.equals("drive") || !stacode.equals(location) ? (mtime + min) : stat.equals("stop") ? trainstopping : (thisflash ? (stop ? trainarr : trainpass) : "")))
-                                    .replaceAll("\\\\&", "\\\\and") // To keep & type \&
-                                    .replaceAll("&", "§")
-                                    .replaceAll("\\\\and", "&");
+                            dispstr = onelangstyle.replaceFirst("%type", atterminus ? notinservice : (stop ? type[thislang] : typepass))
+                                    .replaceFirst("%line", line[thislang])
+                                    .replaceFirst("%dest", String.valueOf(!atterminus ? dest : terminus))
+                                    .replaceFirst("%tmin", String.valueOf(stat.equals("drive") || !stacode.equals(location) ? (mtime + min) : stat.equals("stop") ? trainstopping : (thisflash ? (stop ? trainarr : trainpass) : "")))
+                                    .replaceFirst("\\\\&", "\\\\and") // To keep & type \&
+                                    .replaceFirst("&", "§")
+                                    .replaceFirst("\\\\and", "&");
                         } catch (Exception ignored) {
                             // If anything null then display will be set to blank
                         }
