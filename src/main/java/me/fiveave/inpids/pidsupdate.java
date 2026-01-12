@@ -118,9 +118,9 @@ class pidsupdate {
                                     .replaceFirst("%line", line[thislang])
                                     .replaceFirst("%dest", String.valueOf(!atterminus ? dest : terminus))
                                     .replaceFirst("%tmin", String.valueOf(stat.equals("drive") || !stacode.equals(location) ? (mtime + min) : stat.equals("stop") ? trainstopping : (thisflash ? (stop ? trainarr : trainpass) : "")))
-                                    .replaceFirst("\\\\&", "\\\\and") // To keep & type \&
-                                    .replaceFirst("&", "§")
-                                    .replaceFirst("\\\\and", "&");
+                                    .replaceAll("\\\\&", "\\\\and") // To keep & type \&
+                                    .replaceAll("&", "§")
+                                    .replaceAll("\\\\and", "&");
                         } catch (Exception ignored) {
                             // If anything null then display will be set to blank
                         }
