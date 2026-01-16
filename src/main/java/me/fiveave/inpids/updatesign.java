@@ -59,8 +59,10 @@ class updatesign extends SignAction {
                     // Get platpidssys
                     platpidssys pps = pidsrecmap.get(staplat);
                     // Delete all
-                    pps.removeDeprec(dr);
-                    pidsrecmap.put(staplat, pps);
+                    if (pps != null) {
+                        pps.removeDeprec(dr);
+                        pidsrecmap.put(staplat, pps);
+                    }
                 }
             }
             int time; // Time left in seconds
