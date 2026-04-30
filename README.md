@@ -67,14 +67,14 @@ Update PIDS displays along the line
 [+train]
 inpidsupdate
 <linesys>
-<location> <stat/time>
+<location> [stat/time]
 ```
 
 where
 
 - `<linesys>` is a line system (line with specific train type, destination, etc.)
 - `<location>` is location of train (station)
-- `<stat/time>` is train status (can be `stop` or `arrive`), or arrival time of train in seconds
+- `[stat/time]` is train status (can be `stop` or `arrive`), or arrival time of train in seconds
 
 ## 🛑 Known issues
 
