@@ -19,6 +19,8 @@ There is no need to modify this file as it is purely for storing data of running
 
 Please set up `.csv` files (one per line, train type, destination, etc.) in `statimelist` folder by making a copy of the
 given `iwakinoup.csv` and modifying it.<br/>
+Do not use spreadsheet programs (e.g. Microsoft Excel) to set up this list, as it may change the file encoding.<br/>
+Please use a text editor (e.g. Notepad, Notepad++, Visual Studio Code) to edit.<br/>
 Comma-separated values inside are as
 `<station_code>,<station_name_1>,<station_name_2>,...,<station_name_n>,<platform>,<time>,<stop/pass>`,<br/>
 where `<station_name_1>,<station_name_2>,...,<station_name_n>` are station names in different languages.
