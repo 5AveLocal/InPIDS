@@ -47,17 +47,31 @@ There are a few placeholders that you can use:
 
 ### `stapidslist.yml`
 
-There is generally no need to modify this file, as you can always use the `/inpids setpids` command to register / remove
+There is generally no need to modify this file, as you can always use the `/inpids setpids` command to register, and the `/inpids delpids` command to remove
 a PIDS monitor.
 
 ## ⚙️ Commands
 
-`/inpids setpids <station> <platform> <style> <pidsno>` to register / remove a PIDS monitor, where
+`/inpids setpids <station> <platform> <style> <pidsno>` to register a PIDS monitor, where
 
 - `<station>` is the station code
 - `<platform>` is the platform number (not limited to numbers)
-- `<style>` is the style of the PIDS monitor specified in `stylelist.yml`, or type `null` to remove the PIDS monitor
+- `<style>` is the style of the PIDS monitor specified in `stylelist.yml`
 - `<pidsno>` is the PIDS monitor number
+
+`/inpids delpids [<station> <platform> <pidsno>]` to delete a PIDS monitor, where
+
+- `<station>` is the station code
+- `<platform>` is the platform number (not limited to numbers)
+- `<pidsno>` is the PIDS monitor number
+- these arguments are optional, as you can look at a sign for automatic detection
+
+`/inpids pidsinfo` to check information of a PIDS monitor, where it will show
+
+- station code
+- platform number
+- PIDS number
+- PIDS style
 
 ## 🪧 Signs
 
