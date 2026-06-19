@@ -1,8 +1,8 @@
 name: InPIDS
-version: 0.4.4
+version: ${project.version}
 main: me.fiveave.inpids.main
 api-version: '1.19'
-description: PIDS Plugin
+description: PIDS (Passenger Information Display System) Plugin for TrainCarts
 author: 5_AvenueLocal
 depend: [ Train_Carts ]
 commands:

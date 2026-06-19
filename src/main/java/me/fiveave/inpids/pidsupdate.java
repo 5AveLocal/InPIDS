@@ -114,7 +114,8 @@ class pidsupdate {
                             String min = getSplitStyleMsg(sr, "min")[thislang];
                             //String delay = getSplitStyleMsg(sr, "delay")[thislang];
                             // Display string replacements
-                            dispstr = onelangstyle.replaceFirst("%type", atterminus ? notinservice : (stop ? type[thislang] : typepass))
+                            dispstr = onelangstyle
+                                    .replaceFirst("%type", atterminus ? notinservice : (stop ? type[thislang] : typepass))
                                     .replaceFirst("%line", line[thislang])
                                     .replaceFirst("%dest", String.valueOf(!atterminus ? dest : terminus))
                                     .replaceFirst("%tmin", String.valueOf(stat.equals("drive") || !stacode.equals(location) ? (mtime + min) : stat.equals("stop") ? trainstopping : (thisflash ? (stop ? trainarr : trainpass) : "")))

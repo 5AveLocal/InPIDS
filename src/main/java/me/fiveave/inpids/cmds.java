@@ -11,10 +11,12 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -43,7 +45,6 @@ class cmds implements CommandExecutor, TabCompleter, Listener {
                 return true;
             }
             if (args.length > 0) {
-                //noinspection SwitchStatementWithTooFewBranches
                 switch (args[0].toLowerCase()) {
                     case "setpids":
                         if (args.length < 5) {
@@ -83,23 +84,76 @@ class cmds implements CommandExecutor, TabCompleter, Listener {
                             // Set arguments
                             String pidspath = sta + "." + plat + ".locations." + pidsno;
                             String locstr = ChatColor.WHITE + pidspath + (style.equals("null") ? "" : ChatColor.GREEN + " with style " + ChatColor.WHITE + style) + ChatColor.GREEN + "." + ChatColor.GRAY + " (" + b.getLocation().getBlockX() + " " + b.getLocation().getBlockY() + " " + b.getLocation().getBlockZ() + ")";
-                            if (!style.equals("null")) {
-                                for (int i = 0; i < loclist.size(); i++) {
-                                    stapidslist.dataconfig.set(pidspath + ".pos." + i, loclist.get(i));
-                                }
-                                stapidslist.dataconfig.set(pidspath + ".style", style);
-                                sender.sendMessage(INPIDS_HEAD + ChatColor.GREEN + "PIDS set in " + locstr);
-                            } else {
-                                // If style is "null" then remove PIDS from stapidslist
-                                stapidslist.dataconfig.set(pidspath, null);
-                                sender.sendMessage(INPIDS_HEAD + ChatColor.GREEN + "PIDS removed in " + locstr);
+                            for (int i = 0; i < loclist.size(); i++) {
+                                stapidslist.dataconfig.set(pidspath + ".pos." + i, loclist.get(i));
                             }
+                            stapidslist.dataconfig.set(pidspath + ".style", style);
+                            sender.sendMessage(INPIDS_HEAD + ChatColor.GREEN + "PIDS set in " + locstr);
                             stapidslist.save();
                         } else {
                             playerErrorMsg(sender, "Please select a sign!");
                             return true;
                         }
                         break;
+                    case "delpids":
+                        if (args.length != 1 && args.length != 4) {
+                            playerErrorMsg(sender, "Correct usage: /inpids delpids [<station> <platform> <pidsno>]");
+                            return true;
+                        }
+                        String sta2;
+                        int plat2;
+                        int pidsno2;
+                        // Get sign
+                        Block b2 = p.getTargetBlock(Collections.singleton(Material.AIR), 5);
+                        String purelocstr2 = b2.getLocation().getBlockX() + " " + b2.getLocation().getBlockY() + " " + b2.getLocation().getBlockZ();
+                        // Get from args or get from data config
+                        if (args.length == 4) {
+                            // Get from args
+                            sta2 = args[1];
+                            plat2 = Integer.parseInt(args[2]);
+                            pidsno2 = Integer.parseInt(args[3]);
+                        } else {
+                            FindPidsResult fpr = findPIDS(b2);
+                            if (fpr != null) {
+                                sta2 = fpr.sta;
+                                plat2 = fpr.plat;
+                                pidsno2 = fpr.pidsno;
+                            } else {
+                                playerErrorMsg(sender, "PIDS not found at " + purelocstr2 + ".");
+                                return true;
+                            }
+                        }
+                        if (b2.getBlockData() instanceof WallSign) {
+                            // Set arguments
+                            String pidspath = sta2 + "." + plat2 + ".locations." + pidsno2;
+                            String locstr = ChatColor.WHITE + pidspath + ChatColor.GREEN + "." + ChatColor.GRAY + " (" + purelocstr2 + ")";
+                            stapidslist.dataconfig.set(pidspath, null);
+                            sender.sendMessage(INPIDS_HEAD + ChatColor.GREEN + "PIDS removed in " + locstr);
+                            stapidslist.save();
+                        } else {
+                            playerErrorMsg(sender, "Please select a sign!");
+                            return true;
+                        }
+                        break;
+                    case "pidsinfo":
+                        // Get sign
+                        Block b3 = p.getTargetBlock(Collections.singleton(Material.AIR), 5);
+                        String purelocstr3 = b3.getLocation().getBlockX() + " " + b3.getLocation().getBlockY() + " " + b3.getLocation().getBlockZ();
+                        FindPidsResult fpr3 = findPIDS(b3);
+                        if (fpr3 == null) {
+                            playerErrorMsg(sender, "PIDS not found at " + purelocstr3 + ".");
+                            return true;
+                        } else {
+                            String sta3 = fpr3.sta;
+                            int plat3 = fpr3.plat;
+                            int pidsno3 = fpr3.pidsno;
+                            String path3 = fpr3.path;
+                            String path3repl = path3.replace(".pos", "");
+                            String style3 = stapidslist.dataconfig.getString(path3repl + ".style");
+                            sender.sendMessage(INPIDS_HEAD + ChatColor.YELLOW + "PIDS at " + ChatColor.WHITE + purelocstr3 + ChatColor.YELLOW + " is at path " + ChatColor.WHITE + path3repl + ChatColor.GRAY + "\n(station = " + sta3 + ", platform = " + plat3 + ", no. = " + pidsno3 + ") " + ChatColor.YELLOW + "with style " + ChatColor.WHITE + style3 + ChatColor.YELLOW + ".");
+                        }
+                        break;
+
                 }
             } else {
                 playerErrorMsg(sender, "Wrong arguments!");
@@ -118,10 +172,10 @@ class cmds implements CommandExecutor, TabCompleter, Listener {
         int arglength = args.length;
         switch (arglength) {
             case 1:
-                ta.add("setpids");
+                ta.addAll(Arrays.asList("setpids", "delpids", "pidsinfo"));
                 break;
-            case 3, 5:
-                if (args[0].equalsIgnoreCase("setpids")) {
+            case 3, 4, 5:
+                if (args[0].equalsIgnoreCase("setpids") && arglength != 4 || args[0].equalsIgnoreCase("delpids") && arglength != 5) {
                     for (int i = 0; i < 10; i++) {
                         result.add(String.valueOf(i));
                     }
@@ -138,5 +192,23 @@ class cmds implements CommandExecutor, TabCompleter, Listener {
             }
         });
         return result;
+    }
+
+    FindPidsResult findPIDS(Block b) {
+        // Get from data config
+        for (String s : stapidslist.dataconfig.getKeys(true)) {
+            ConfigurationSection cs = stapidslist.dataconfig.getConfigurationSection(s);
+            if (cs != null && s.contains(".pos")) {
+                Location loc = cs.getLocation(".0");
+                if (loc != null && loc.equals(b.getLocation())) {
+                    String[] splits1 = s.split("\\.");
+                    return new FindPidsResult(splits1[0], Integer.parseInt(splits1[1]), Integer.parseInt(splits1[3]), s);
+                }
+            }
+        }
+        return null;
+    }
+
+    record FindPidsResult(String sta, int plat, int pidsno, String path) {
     }
 }
