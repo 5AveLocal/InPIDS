@@ -22,13 +22,28 @@ given `iwakinoup.csv` and modifying it.<br/>
 Do not use spreadsheet programs (e.g. Microsoft Excel) to set up this list, as it may change the file encoding.<br/>
 Please use a text editor (e.g. Notepad, Notepad++, Visual Studio Code) to edit.<br/>
 Comma-separated values inside are as
-`<station_code>,<station_name_1>,<station_name_2>,...,<station_name_n>,<platform>,<time>,<stop/pass>`,<br/>
-where `<station_name_1>,<station_name_2>,...,<station_name_n>` are station names in different languages.
+`<station_code>,<station_name_1>,<station_name_2>,...,<station_name_n>,<platform>,<time>,<stop/pass>,<door_direction>,<transfers>`,<br/>
+where
+
+- `<station_name_1>,<station_name_2>,...,<station_name_n>` are station names in different languages
+- `<platform>` is the platform number
+- `<time>` is the time from the last station to this station
+- `<stop/pass>` is used to set whether the train will stop or pass this station
+- `<door_direction>` is the door direction (e.g. `left`, `right` or other custom values)
+- `<transfers>` is the transfer list (please add color codes and type the full list in, use double quotes (`"`) to surround the list if there are any commas)
 
 ### `linetypelist.yml`
 
-Please set up a new line type with reference to the default values.<br/>
+Please first set up names for each kind of operating pattern.
+Then fill in the fields according to the list below:
+
+- `line`: line name
+- `type`: train type
+- `line_color`: line color
+- `type_color`: train type color
+
 Use `|` (vertical bar) for separating different languages.
+
 
 ### `stylelist.yml`
 
@@ -49,6 +64,22 @@ There are a few placeholders that you can use:
 
 There is generally no need to modify this file, as you can always use the `/inpids setpids` command to register, and the `/inpids delpids` command to remove
 a PIDS monitor.
+
+### `pastylelist.yml`
+
+Please set up a new announcement style format with reference to the default values.<br/>
+Start your style format with a name, then `text` for the main format itself, and `doordir` for door directions (types can be modified).<br/>
+There are some placeholders that you can use:
+
+- `%line_color` for line color (Minecraft color codes `0-f`)
+- `%line` for line name
+- `%type_color` for train type color (Minecraft color codes `0-f`)
+- `%type` for train type name
+- `%sta_<num>` for station name, in which for `<num>`, -1 is previous station, 0 is this station, 1 is next station, etc.
+- `%trans_<num>` for transfer list, in which for `<num>`, -1 is previous station, 0 is this station, 1 is next station, etc.
+- `%door_dir` for door direction display
+
+Please note that all names above will include all languages available in `statimelist.yml` and `linetypelist.yml`, with each languages separated by a space (` `).
 
 ## ⚙️ Commands
 
@@ -88,9 +119,26 @@ inpidsupdate
 
 where
 
-- `<linesys>` is a line system (line with specific train type, destination, etc.)
+- `<linesys>` is a "line system" (line with specific train type, destination, etc.) specified in `statimelist` folder
 - `<location>` is location of train (station)
 - `[stat/time]` is train status (can be `stop` or `arrive`), or arrival time of train in seconds
+
+### inpidscarpa
+
+Display text announcement on train for all passengers
+
+```
+[+train]
+inpidscarpa
+<linesys>
+<location> <style>
+```
+
+where
+
+- `<linesys>` is a line system (line with specific train type, destination, etc.)
+- `<location>` is location of train (station)
+- `<style>` is announcement style format specified in `pastylelist.yml`
 
 ## 🛑 Known issues
 
