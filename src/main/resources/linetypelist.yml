@@ -1,3 +1,5 @@
 iwakinoup:
   line: "岩木野線|Iwakino Line"
   type: "普通|Local"
+  line_color: "&9"
+  type_color: "&f"

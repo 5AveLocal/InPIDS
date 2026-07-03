@@ -22,6 +22,10 @@ class statimelist {
     private final ArrayList<Integer> time;
     /// List of booleans on whether train will stop at station
     private final ArrayList<Boolean> stop;
+    /// List of transfer lines
+    private final ArrayList<String[]> transfers;
+    /// List of door opening directions
+    private final ArrayList<String> doordir;
     /// Number of stations
     private int size;
 
@@ -36,6 +40,8 @@ class statimelist {
         plat = new ArrayList<>();
         time = new ArrayList<>();
         stop = new ArrayList<>();
+        transfers = new ArrayList<>();
+        doordir = new ArrayList<>();
         readFile();
     }
 
@@ -98,11 +104,13 @@ class statimelist {
             ArrayList<String> platlist = new ArrayList<>();
             ArrayList<Integer> timelist = new ArrayList<>();
             ArrayList<Boolean> stoplist = new ArrayList<>();
+            ArrayList<String[]> transferlist = new ArrayList<>();
+            ArrayList<String> doordirlist = new ArrayList<>();
             BufferedReader br = new BufferedReader(new FileReader(file));
             String line;
             // Read all lines in file
             while ((line = br.readLine()) != null) {
-                int namesize = line.split(",").length - 4;
+                int namesize = line.split(",").length - 6;
                 String[] linesplit = line.split(",");
                 String thiscode = linesplit[0];
                 String[] thisstaname = new String[namesize];
@@ -110,12 +118,16 @@ class statimelist {
                 String thisplat = linesplit[namesize + 1];
                 int thistime = Integer.parseInt(linesplit[namesize + 2]);
                 boolean thisstop = linesplit[namesize + 3].equals("stop");
+                String thisdoordir = linesplit[namesize + 4];
+                String[] thistransfers = linesplit[namesize + 5].split(" ");
                 // Add to list
                 stacodelist.add(thiscode);
                 stanamelist.add(thisstaname);
                 platlist.add(thisplat);
                 timelist.add(thistime);
                 stoplist.add(thisstop);
+                transferlist.add(thistransfers);
+                doordirlist.add(thisdoordir);
                 // Increase length
                 length++;
             }
@@ -125,6 +137,8 @@ class statimelist {
             plat.addAll(platlist);
             time.addAll(timelist);
             stop.addAll(stoplist);
+            transfers.addAll(transferlist);
+            doordir.addAll(doordirlist);
             // Set length
             size = length;
 
@@ -155,5 +169,13 @@ class statimelist {
     /// @return Number of stations on linesys
     int getSize() {
         return size;
+    }
+
+    ArrayList<String[]> getTransfers() {
+        return transfers;
+    }
+
+    ArrayList<String> getDoorDir() {
+        return doordir;
     }
 }

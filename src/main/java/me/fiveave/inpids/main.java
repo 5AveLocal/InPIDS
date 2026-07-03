@@ -28,10 +28,11 @@ public final class main extends JavaPlugin {
     static main plugin;
     /// Boolean on whether train list clock is running
     static boolean tlClock;
-    static absyaml linetypelist, stylelist, trainlist, stapidslist;
+    static absyaml linetypelist, stylelist, trainlist, stapidslist, pastylelist;
     static boolean tlsave, splsave;
     /// inpidsupdate sign object
     final updatesign var0 = new updatesign();
+    final carpasign var1 = new carpasign();
 
     /// Error log method
     ///
@@ -60,6 +61,7 @@ public final class main extends JavaPlugin {
         stylelist = new absyaml(this, "stylelist.yml");
         trainlist = new absyaml(this, "trainlist.yml");
         stapidslist = new absyaml(this, "stapidslist.yml");
+        pastylelist = new absyaml(this, "pastylelist.yml");
         // Default statimelist "iwakinoup"
         String iwakinoup = "statimelist/iwakinoup.csv";
         if (!new File(plugin.getDataFolder() + "/" + iwakinoup).exists()) {
@@ -90,6 +92,7 @@ public final class main extends JavaPlugin {
         Objects.requireNonNull(this.getCommand("inpids")).setExecutor(new cmds());
         Objects.requireNonNull(this.getCommand("inpids")).setTabCompleter(new cmds());
         SignAction.register(var0);
+        SignAction.register(var1);
     }
 
     /// Plugin disable method
@@ -108,5 +111,6 @@ public final class main extends JavaPlugin {
         trainlist.save();
         stapidslist.save();
         SignAction.unregister(var0);
+        SignAction.unregister(var1);
     }
 }

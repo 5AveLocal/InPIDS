@@ -1,0 +1,23 @@
+default:
+  text:
+    - "&f============================================="
+    - "%line_color&l%line &r    %type_color%type"
+    - "&7● %sta_-1"
+    - "&7 \\ %trans_-1"
+    - "&6  \\"
+    - "%line_color   ● &f%sta_0"
+    - "%line_color    \\ %trans_0"
+    - "%line_color     \\"
+    - "%line_color      ● &f%sta_1"
+    - "%line_color       \\ %trans_1"
+    - "%line_color        \\"
+    - "%line_color         ● &f%sta_2"
+    - "%line_color          \\ %trans_2"
+    - "%line_color           \\"
+    - "                      &f車門 Door"
+    - "             %door_dir"
+    - "&f============================================="
+  doordir:
+    left: "&a<------         &7------>"
+    right: "&7<------         &a------>"
+    null: "&7<------         ------>"
