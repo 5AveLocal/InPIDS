@@ -23,7 +23,7 @@ class statimelist {
     /// List of booleans on whether train will stop at station
     private final ArrayList<Boolean> stop;
     /// List of transfer lines
-    private final ArrayList<String[]> transfers;
+    private final ArrayList<String> transfers;
     /// List of door opening directions
     private final ArrayList<String> doordir;
     /// Number of stations
@@ -104,7 +104,7 @@ class statimelist {
             ArrayList<String> platlist = new ArrayList<>();
             ArrayList<Integer> timelist = new ArrayList<>();
             ArrayList<Boolean> stoplist = new ArrayList<>();
-            ArrayList<String[]> transferlist = new ArrayList<>();
+            ArrayList<String> transferlist = new ArrayList<>();
             ArrayList<String> doordirlist = new ArrayList<>();
             BufferedReader br = new BufferedReader(new FileReader(file));
             String line;
@@ -119,7 +119,7 @@ class statimelist {
                 int thistime = Integer.parseInt(linesplit[namesize + 2]);
                 boolean thisstop = linesplit[namesize + 3].equals("stop");
                 String thisdoordir = linesplit[namesize + 4];
-                String[] thistransfers = linesplit[namesize + 5].split(" ");
+                String thistransfers = linesplit[namesize + 5];
                 // Add to list
                 stacodelist.add(thiscode);
                 stanamelist.add(thisstaname);
@@ -171,7 +171,7 @@ class statimelist {
         return size;
     }
 
-    ArrayList<String[]> getTransfers() {
+    ArrayList<String> getTransfers() {
         return transfers;
     }
 

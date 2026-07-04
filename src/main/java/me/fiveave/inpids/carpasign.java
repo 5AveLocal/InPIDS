@@ -11,7 +11,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -58,12 +57,23 @@ class carpasign extends SignAction {
         StringBuilder strb = new StringBuilder();
         String doordir = Objects.requireNonNull(pastylelist.dataconfig.getString(style + ".doordir." + stl.getDoorDir().get(thisstaindex)));
         ArrayList<String[]> staname = stl.getStaname();
-        ArrayList<String[]> transfers = stl.getTransfers();
+        ArrayList<String> transfers = stl.getTransfers();
         int stlsize = stl.getSize();
         int terminusindex = stlsize - 1;
         String[] dest = staname.get(terminusindex);
         // Station counter
         int i = 0;
+        boolean stopouterloop = false;
+        for (int selindex = i - thisstaindex; selindex  < stlsize - thisstaindex; selindex ++) {
+            for (String s : stylelines) {
+                if (s.contains("%sta_" + selindex)) {
+                    i = selindex + thisstaindex;
+                    stopouterloop = true;
+                    break;
+                }
+            }
+            if (stopouterloop) break;
+        }
         for (String s : stylelines) {
             int selindex = i - thisstaindex;
             String appendedstr = s;
@@ -96,9 +106,6 @@ class carpasign extends SignAction {
                 for (int langcount = 0; langcount < staname.get(i).length; langcount++) {
                     appendedstr = appendedstr.replace("%sta_" + selindex + "_" + langcount, staname.get(i)[langcount]);
                 }
-                for (int langcount = 0; langcount < transfers.get(i).length; langcount++) {
-                    appendedstr = appendedstr.replace("%trans_" + selindex + "_" + langcount, transfers.get(i)[langcount]);
-                }
                 // General replacements
                 appendedstr = appendedstr
                         .replace("%sta_" + selindex, String.join(" ", staname.get(i)))
@@ -106,8 +113,7 @@ class carpasign extends SignAction {
             }
 
             // Door direction
-            appendedstr = appendedstr
-                    .replace("%door_dir", doordir);
+            appendedstr = appendedstr.replace("%door_dir", doordir);
             // Color replacement
             appendedstr = colorparser.parseColors(appendedstr);
             // Appending and station counting
