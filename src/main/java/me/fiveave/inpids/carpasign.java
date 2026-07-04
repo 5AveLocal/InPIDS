@@ -11,6 +11,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -106,11 +107,9 @@ class carpasign extends SignAction {
 
             // Door direction
             appendedstr = appendedstr
-                    .replace("%door_dir", doordir)
-                    .replace("\\&", "\\and") // To keep & type \&
-                    .replace("&", "§")
-                    .replace("\\and", "&");
-
+                    .replace("%door_dir", doordir);
+            // Color replacement
+            appendedstr = colorparser.parseColors(appendedstr);
             // Appending and station counting
             if (append) {
                 strb.append(appendedstr);

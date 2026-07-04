@@ -153,7 +153,6 @@ class cmds implements CommandExecutor, TabCompleter, Listener {
                             sender.sendMessage(INPIDS_HEAD + ChatColor.YELLOW + "PIDS at " + ChatColor.WHITE + purelocstr3 + ChatColor.YELLOW + " is at path " + ChatColor.WHITE + path3repl + ChatColor.GRAY + "\n(station = " + sta3 + ", platform = " + plat3 + ", no. = " + pidsno3 + ") " + ChatColor.YELLOW + "with style " + ChatColor.WHITE + style3 + ChatColor.YELLOW + ".");
                         }
                         break;
-
                 }
             } else {
                 playerErrorMsg(sender, "Wrong arguments!");
