@@ -24,14 +24,18 @@ public class colorparser {
 
         // Escape \& sequences
         message = message.replace("\\&", "§AMPERSAND§");
+        // Escape \& sequences
+        message = message.replace("\\\\n", "§BACKSLASH_N§");
 
         // Parse colors normally
         message = parseHexHash(message);
         message = parseLegacyHex(message);
         message = ChatColor.translateAlternateColorCodes('&', message);
+        message = message.replace("\\n", "\n");
 
         // Restore literal &
         message = message.replace("§AMPERSAND§", "&");
+        message = message.replace("§BACKSLASH_N§", "\\\\n");
 
         return message;
     }
