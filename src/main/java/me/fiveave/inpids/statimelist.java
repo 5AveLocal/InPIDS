@@ -143,7 +143,7 @@ class statimelist {
             size = length;
 
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            errorLog(new Exception("Could not read statimelist file " + file.getName()));
         }
     }
 

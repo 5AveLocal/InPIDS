@@ -87,7 +87,9 @@ class pidsupdate {
                             String location = trainlist.dataconfig.getString(trainname + ".location");
                             String stat = Objects.requireNonNull(trainlist.dataconfig.getString(trainname + ".stat"));
                             String[] line = Objects.requireNonNull(linetypelist.dataconfig.getString(linesys + ".line")).split("\\|");
+                            String linecolor = Objects.requireNonNull(linetypelist.dataconfig.getString(linesys + ".line_color"));
                             String[] type = Objects.requireNonNull(linetypelist.dataconfig.getString(linesys + ".type")).split("\\|");
+                            String typecolor = Objects.requireNonNull(linetypelist.dataconfig.getString(linesys + ".type_color"));
                             statimelist stl = stlmap.get(linesys);
                             int terminusindex = stl.getSize() - 1;
                             String[] destination = stl.getStaname().get(terminusindex);
@@ -115,13 +117,15 @@ class pidsupdate {
                             //String delay = getSplitStyleMsg(sr, "delay")[thislang];
                             // Display string replacements
                             dispstr = onelangstyle
-                                    .replaceFirst("%type", atterminus ? notinservice : (stop ? type[thislang] : typepass))
-                                    .replaceFirst("%line", line[thislang])
-                                    .replaceFirst("%dest", String.valueOf(!atterminus ? dest : terminus))
-                                    .replaceFirst("%tmin", String.valueOf(stat.equals("drive") || !stacode.equals(location) ? (mtime + min) : stat.equals("stop") ? trainstopping : (thisflash ? (stop ? trainarr : trainpass) : "")))
-                                    .replaceAll("\\\\&", "\\\\and") // To keep & type \&
-                                    .replaceAll("&", "§")
-                                    .replaceAll("\\\\and", "&");
+                                    .replace("%type_color", typecolor)
+                                    .replace("%type", atterminus ? notinservice : (stop ? type[thislang] : typepass))
+                                    .replace("%line_color", linecolor)
+                                    .replace("%line", line[thislang])
+                                    .replace("%dest", String.valueOf(!atterminus ? dest : terminus))
+                                    .replace("%tmin", String.valueOf(stat.equals("drive") || !stacode.equals(location) ? (mtime + min) : stat.equals("stop") ? trainstopping : (thisflash ? (stop ? trainarr : trainpass) : "")))
+                                    .replace("\\&", "\\and") // To keep & type \&
+                                    .replace("&", "§")
+                                    .replace("\\and", "&");
                         } catch (Exception ignored) {
                             // If anything null then display will be set to blank
                         }

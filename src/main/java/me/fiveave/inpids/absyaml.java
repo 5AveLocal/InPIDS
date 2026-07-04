@@ -78,7 +78,7 @@ class absyaml {
                     dataconfig.save(file);
                     Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + fileName + " has been updated with new config options");
                 } catch (IOException e) {
-                    errorLog(e);
+                    errorLog(new Exception("Could not save file " + file.getName()));
                 }
             }
         }
@@ -92,7 +92,7 @@ class absyaml {
         try {
             dataconfig.save(file);
         } catch (IOException e) {
-            errorLog(e);
+            errorLog(new Exception("Could not save file " + file.getName()));
         }
     }
 

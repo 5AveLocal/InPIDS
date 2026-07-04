@@ -2,6 +2,7 @@ default:
   text:
     - "&f============================================="
     - "%line_color&l%line &r    %type_color%type"
+    - "&f往%dest_0 for %dest_1"
     - "&7● %sta_-1"
     - "&7 \\ %trans_-1"
     - "&6  \\"
