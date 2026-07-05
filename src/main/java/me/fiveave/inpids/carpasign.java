@@ -54,9 +54,12 @@ class carpasign extends SignAction {
         String linecolor = Objects.requireNonNull(linetypelist.dataconfig.getString(linesys + ".line_color"));
         String[] type = Objects.requireNonNull(linetypelist.dataconfig.getString(linesys + ".type")).split("\\|");
         String typecolor = Objects.requireNonNull(linetypelist.dataconfig.getString(linesys + ".type_color"));
+        String orilinecode = linetypelist.dataconfig.getString(linesys + ".ori_line_code");
+        String altlinecode = linetypelist.dataconfig.getString(linesys + ".alt_line_code");
         StringBuilder strb = new StringBuilder();
         String doordir = Objects.requireNonNull(pastylelist.dataconfig.getString(style + ".doordir." + stl.getDoorDir().get(thisstaindex)));
         ArrayList<String[]> staname = stl.getStaname();
+        ArrayList<String> stacode = stl.getStacode();
         ArrayList<String> transfers = stl.getTransfers();
         int stlsize = stl.getSize();
         int terminusindex = stlsize - 1;
@@ -107,7 +110,12 @@ class carpasign extends SignAction {
                     appendedstr = appendedstr.replace("%sta_" + selindex + "_" + langcount, staname.get(i)[langcount]);
                 }
                 // General replacements
+                String thisstacode = stacode.get(i);
+                if (orilinecode != null && altlinecode != null) {
+                    thisstacode = thisstacode.replace(orilinecode, altlinecode);
+                }
                 appendedstr = appendedstr
+                        .replace("%sta_code_" + selindex, thisstacode)
                         .replace("%sta_" + selindex, String.join(" ", staname.get(i)))
                         .replace("%trans_" + selindex, String.join(" ", transfers.get(i)));
             }

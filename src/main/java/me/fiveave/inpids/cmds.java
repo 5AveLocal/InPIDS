@@ -153,6 +153,11 @@ class cmds implements CommandExecutor, TabCompleter, Listener {
                             sender.sendMessage(INPIDS_HEAD + ChatColor.YELLOW + "PIDS at " + ChatColor.WHITE + purelocstr3 + ChatColor.YELLOW + " is at path " + ChatColor.WHITE + path3repl + ChatColor.GRAY + "\n(station = " + sta3 + ", platform = " + plat3 + ", no. = " + pidsno3 + ") " + ChatColor.YELLOW + "with style " + ChatColor.WHITE + style3 + ChatColor.YELLOW + ".");
                         }
                         break;
+                    case "reload":
+                        disableLogic();
+                        enableLogic();
+                        p.sendMessage(INPIDS_HEAD + ChatColor.YELLOW + "Plugin has been reloaded.");
+                        break;
                 }
             } else {
                 playerErrorMsg(sender, "Wrong arguments!");
@@ -171,7 +176,7 @@ class cmds implements CommandExecutor, TabCompleter, Listener {
         int arglength = args.length;
         switch (arglength) {
             case 1:
-                ta.addAll(Arrays.asList("setpids", "delpids", "pidsinfo"));
+                ta.addAll(Arrays.asList("setpids", "delpids", "pidsinfo", "reload"));
                 break;
             case 3, 4, 5:
                 if (args[0].equalsIgnoreCase("setpids") && arglength != 4 || args[0].equalsIgnoreCase("delpids") && arglength != 5) {

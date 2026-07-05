@@ -31,8 +31,8 @@ public final class main extends JavaPlugin {
     static absyaml linetypelist, stylelist, trainlist, stapidslist, pastylelist;
     static boolean tlsave, splsave;
     /// inpidsupdate sign object
-    final updatesign var0 = new updatesign();
-    final carpasign var1 = new carpasign();
+    static final updatesign var0 = new updatesign();
+    static final carpasign var1 = new carpasign();
 
     /// Error log method
     ///
@@ -53,15 +53,19 @@ public final class main extends JavaPlugin {
     public void onEnable() {
         // Plugin startup logic
         plugin = this;
+        enableLogic();
+    }
+
+    static void enableLogic() {
         tlClock = false;
         tlsave = false;
         splsave = false;
         // Load all .yml files
-        linetypelist = new absyaml(this, "linetypelist.yml");
-        stylelist = new absyaml(this, "stylelist.yml");
-        trainlist = new absyaml(this, "trainlist.yml");
-        stapidslist = new absyaml(this, "stapidslist.yml");
-        pastylelist = new absyaml(this, "pastylelist.yml");
+        linetypelist = new absyaml(plugin, "linetypelist.yml");
+        stylelist = new absyaml(plugin, "stylelist.yml");
+        trainlist = new absyaml(plugin, "trainlist.yml");
+        stapidslist = new absyaml(plugin, "stapidslist.yml");
+        pastylelist = new absyaml(plugin, "pastylelist.yml");
         // Default statimelist "iwakinoup"
         String iwakinoup = "statimelist/iwakinoup.csv";
         if (!new File(plugin.getDataFolder() + "/" + iwakinoup).exists()) {
@@ -89,8 +93,8 @@ public final class main extends JavaPlugin {
             stylemap.put(stylename, new stylerec(stylename));
         }
         // Register commands and signs
-        Objects.requireNonNull(this.getCommand("inpids")).setExecutor(new cmds());
-        Objects.requireNonNull(this.getCommand("inpids")).setTabCompleter(new cmds());
+        Objects.requireNonNull(plugin.getCommand("inpids")).setExecutor(new cmds());
+        Objects.requireNonNull(plugin.getCommand("inpids")).setTabCompleter(new cmds());
         SignAction.register(var0);
         SignAction.register(var1);
     }
@@ -99,6 +103,10 @@ public final class main extends JavaPlugin {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+        disableLogic();
+    }
+
+    static void disableLogic() {
         // Clear all PIDS displays
         for (String pidsrecstr : pidsrecmap.keySet()) {
             platpidssys pps = pidsrecmap.get(pidsrecstr);
