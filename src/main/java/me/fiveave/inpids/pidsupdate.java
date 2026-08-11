@@ -59,13 +59,8 @@ class pidsupdate {
             List<Integer> lines = sr.getLines();
             int loopinterval = sr.getLoopinterval();
             int flashinterval = sr.getFlashinterval();
-            String pospath = staplat + ".locations." + pidsindex + ".pos";
-            ConfigurationSection cs = Objects.requireNonNull(stapidslist.dataconfig.getConfigurationSection(pospath));
-            Set<String> locset = cs.getKeys(false);
-            ArrayList<Location> loclist = new ArrayList<>();
-            for (String strloc : locset) {
-                loclist.add(stapidslist.dataconfig.getLocation(pospath + "." + strloc));
-            }
+            String pospath = getPospath(pidsindex, staplat);
+            ArrayList<Location> loclist = getPidsLocFromPosPath(pospath);
             long ticks = System.currentTimeMillis() / 50;
             int signsize = loclist.size();
             int linesize = lines.size();
@@ -153,5 +148,20 @@ class pidsupdate {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    static String getPospath(String pidsindex, String staplat) {
+        String pospath = staplat + ".locations." + pidsindex + ".pos";
+        return pospath;
+    }
+
+    static ArrayList<Location> getPidsLocFromPosPath(String pospath) {
+        ArrayList<Location> loclist = new ArrayList<>();
+        ConfigurationSection cs = Objects.requireNonNull(stapidslist.dataconfig.getConfigurationSection(pospath));
+        Set<String> locset = cs.getKeys(false);
+        for (String strloc : locset) {
+            loclist.add(stapidslist.dataconfig.getLocation(pospath + "." + strloc));
+        }
+        return loclist;
     }
 }

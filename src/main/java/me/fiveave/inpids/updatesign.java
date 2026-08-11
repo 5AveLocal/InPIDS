@@ -9,10 +9,17 @@ import com.bergerkiller.bukkit.tc.signactions.SignActionType;
 import com.bergerkiller.bukkit.tc.utils.SignBuildOptions;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Set;
 
 import static me.fiveave.inpids.main.*;
+import static me.fiveave.inpids.pidsupdate.getPidsLocFromPosPath;
+import static me.fiveave.inpids.pidsupdate.getPospath;
 import static me.fiveave.inpids.statimelist.getTimeToStation;
 
 /// inpidsupdate sign class
@@ -74,6 +81,8 @@ class updatesign extends SignAction {
                     stat = l3[1];
                     // Set time to 0 only if it does not exist, or stat is stop
                     time = !trainlist.dataconfig.contains(trainname + ".time") || stat.equals("stop") ? 0 : trainlist.dataconfig.getInt(trainname + ".time");
+                    // Arrival text PA
+                    arrivalTextPa(stat, stl, location);
                 }
             } else {
                 time = stl.getTime().get(stl.getStaIndex(location));
@@ -117,6 +126,41 @@ class updatesign extends SignAction {
             if (!tlClock) {
                 trainlistClockLoop();
                 tlClock = true;
+            }
+        }
+    }
+
+    private static void arrivalTextPa(String stat, statimelist stl, String location) {
+        if (stat != null && stat.equals("arrive")) {
+            // Initial setup
+            int thisstaindex = stl.getStaIndex(location);
+            String staplat = stl.getStacode().get(thisstaindex) + "." + stl.getPlat().get(thisstaindex);
+            String locpath = staplat + ".locations";
+            ConfigurationSection cs = stapidslist.dataconfig.getConfigurationSection(locpath);
+            Set<String> pidsset;
+            if (cs != null) {
+                // Get reference points for playing text PA
+                pidsset = cs.getKeys(false);
+                ArrayList<Location> refloclist = new ArrayList<>();
+                for (String pidsindex : pidsset) {
+                    String pospath = getPospath(pidsindex, staplat);
+                    ArrayList<Location> loclist = getPidsLocFromPosPath(pospath);
+                    // Get middle block of single PIDS display as reference point
+                    int mid = loclist.size() / 2;
+                    refloclist.add(loclist.get(mid));
+                }
+                /* updatesign request
+                -> get platpidssys locations
+                -> stylelist.yml <-- FIXME: ISSUE!
+                -> placeholder replacement
+                -> send non-duplicating text message to player
+                 */
+                // Get suitable players
+                for (Location refpt : refloclist) {
+                    for (Player p : Bukkit.getOnlinePlayers()) {
+                        double dist = p.getLocation().distance(refpt);
+                    }
+                }
             }
         }
     }
