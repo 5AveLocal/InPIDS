@@ -41,6 +41,7 @@ Then fill in the fields according to the list below:
 - `type`: train type
 - `line_color`: line color
 - `type_color`: train type color
+- `ori_line_code` and `alt_line_code` (optional): original and alternative line codes (for replacement, must be paired together)
 
 Use `|` (vertical bar) for separating different languages.
 
