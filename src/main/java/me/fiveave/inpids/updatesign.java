@@ -154,12 +154,12 @@ class updatesign extends SignAction {
                 }, 1);
             }
         }
-        // Save to trainlist at once at end for all
+        // Save to trainlist at end once and for all
         if (tlsave) {
             trainlist.save();
             tlsave = false;
         }
-        // Save to stapidslist at once at end for all
+        // Save to stapidslist at end once and for all
         if (splsave) {
             stapidslist.save();
             splsave = false;
