@@ -77,6 +77,7 @@ There are some placeholders that you can use:
 - `%type_color` for train type color (Minecraft color codes `0-f`)
 - `%type` for train type name
 - `%sta_code_<num>` for station number, in which for `<num>`, -1 is previous station, 0 is this station, 1 is next station, etc.
+  - Add `ori_line_code` and `alt_line_code` fields in `linetypelist.yml` if the line code you want to display is different than that in `.csv` files in `statimelist` folder.
 - `%sta_<num>` for station name, in which for `<num>`, -1 is previous station, 0 is this station, 1 is next station, etc.
 - `%trans_<num>` for transfer list, in which for `<num>`, -1 is previous station, 0 is this station, 1 is next station, etc.
 - `%door_dir` for door direction display
