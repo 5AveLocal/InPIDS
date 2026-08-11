@@ -20,3 +20,6 @@ j3normal:
     terminus: "&e終點站|&eTerminus"
     delay: "&c延遲|&cDelay"
     min: "&f 分鐘|&f min"
+  pa:
+    text:
+      arrive: "&f往%dest_0列車即將到達。 The train for %dest_1 is arriving."
