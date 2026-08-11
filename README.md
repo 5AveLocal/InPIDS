@@ -79,7 +79,8 @@ There are some placeholders that you can use:
 - `%trans_<num>` for transfer list, in which for `<num>`, -1 is previous station, 0 is this station, 1 is next station, etc.
 - `%door_dir` for door direction display
 
-Please note that all names above will include all languages available in `statimelist.yml` and `linetypelist.yml`, with each languages separated by a space (` `).
+Please note that all names above will include all languages available in `statimelist.yml` and `linetypelist.yml`, with each language separated by a space (` `).
+For specific languages, add `_<lang_index>` directly behind the placeholder (not available for colors for obvious reasons).
 
 ## ⚙️ Commands
 
