@@ -76,6 +76,7 @@ There are some placeholders that you can use:
 - `%line` for line name
 - `%type_color` for train type color (Minecraft color codes `0-f`)
 - `%type` for train type name
+- `%sta_code_<num>` for station number, in which for `<num>`, -1 is previous station, 0 is this station, 1 is next station, etc.
 - `%sta_<num>` for station name, in which for `<num>`, -1 is previous station, 0 is this station, 1 is next station, etc.
 - `%trans_<num>` for transfer list, in which for `<num>`, -1 is previous station, 0 is this station, 1 is next station, etc.
 - `%door_dir` for door direction display
