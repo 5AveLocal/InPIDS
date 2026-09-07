@@ -67,7 +67,7 @@ class carpasign extends SignAction {
         // Station counter
         int i = 0;
         boolean stopouterloop = false;
-        for (int selindex = i - thisstaindex; selindex  < stlsize - thisstaindex; selindex ++) {
+        for (int selindex = i - thisstaindex; selindex < stlsize - thisstaindex; selindex++) {
             for (String s : stylelines) {
                 if (s.contains("%sta_" + selindex)) {
                     i = selindex + thisstaindex;

@@ -24,15 +24,15 @@ public final class main extends JavaPlugin {
     static final HashMap<String, platpidssys> pidsrecmap = new HashMap<>();
     /// HashMap of style records
     static final HashMap<String, stylerec> stylemap = new HashMap<>();
+    /// inpidsupdate sign object
+    static final updatesign var0 = new updatesign();
+    static final carpasign var1 = new carpasign();
     /// This plugin
     static main plugin;
     /// Boolean on whether train list clock is running
     static boolean tlClock;
     static absyaml linetypelist, stylelist, trainlist, stapidslist, pastylelist;
     static boolean tlsave, splsave;
-    /// inpidsupdate sign object
-    static final updatesign var0 = new updatesign();
-    static final carpasign var1 = new carpasign();
 
     /// Error log method
     ///
@@ -46,14 +46,6 @@ public final class main extends JavaPlugin {
     /// @return Boolean on whether current tick is 0 in a second
     static boolean isAtZeroTick() {
         return Math.toIntExact((System.currentTimeMillis() / 50) % 20) == 0;
-    }
-
-    /// Plugin enable method
-    @Override
-    public void onEnable() {
-        // Plugin startup logic
-        plugin = this;
-        enableLogic();
     }
 
     static void enableLogic() {
@@ -99,13 +91,6 @@ public final class main extends JavaPlugin {
         SignAction.register(var1);
     }
 
-    /// Plugin disable method
-    @Override
-    public void onDisable() {
-        // Plugin shutdown logic
-        disableLogic();
-    }
-
     static void disableLogic() {
         // Clear all PIDS displays
         for (String pidsrecstr : pidsrecmap.keySet()) {
@@ -120,5 +105,20 @@ public final class main extends JavaPlugin {
         stapidslist.save();
         SignAction.unregister(var0);
         SignAction.unregister(var1);
+    }
+
+    /// Plugin enable method
+    @Override
+    public void onEnable() {
+        // Plugin startup logic
+        plugin = this;
+        enableLogic();
+    }
+
+    /// Plugin disable method
+    @Override
+    public void onDisable() {
+        // Plugin shutdown logic
+        disableLogic();
     }
 }

@@ -151,8 +151,7 @@ class pidsupdate {
     }
 
     static String getPospath(String pidsindex, String staplat) {
-        String pospath = staplat + ".locations." + pidsindex + ".pos";
-        return pospath;
+        return staplat + ".locations." + pidsindex + ".pos";
     }
 
     static ArrayList<Location> getPidsLocFromPosPath(String pospath) {
