@@ -45,13 +45,6 @@ class updatesign extends SignAction {
                     int mid = loclist.size() / 2;
                     refloclist.add(loclist.get(mid));
                 }
-                /* updatesign request (done)
-                -> get platpidssys locations (done)
-                -> stylelist.yml (done)
-                -> PIDS display selection (done)
-                -> placeholder replacement
-                -> send text message to player
-                 */
                 // For every player find the most suitable PIDS
                 for (Player p : Bukkit.getOnlinePlayers()) {
                     // Find min distance of ref point to player
