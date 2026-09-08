@@ -16,6 +16,7 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.Set;
 
+import static me.fiveave.inpids.carpasign.getPlaceholderReplacedString;
 import static me.fiveave.inpids.cmds.findPids;
 import static me.fiveave.inpids.main.*;
 import static me.fiveave.inpids.pidsupdate.getPidsLocFromPosPath;
@@ -25,7 +26,7 @@ import static me.fiveave.inpids.statimelist.getTimeToStation;
 /// inpidsupdate sign class
 class updatesign extends SignAction {
 
-    private static void arrivalTextPa(String stat, statimelist stl, String location) {
+    private static void arrivalTextPa(String stat, statimelist stl, String linesys, String location) {
         if (stat != null && stat.equals("arrive")) {
             // Initial setup
             int thisstaindex = stl.getStaIndex(location);
@@ -57,6 +58,8 @@ class updatesign extends SignAction {
                     double mindist = Double.MAX_VALUE;
                     Location mindistloc = null;
                     stylerec mindistsr = null;
+                    String mindiststyle = null;
+                    cmds.FindPidsResult mindistfpr = null;
                     for (Location refpt : refloclist) {
                         double dist = p.getLocation().distance(refpt);
                         // Get style for this PIDS display
@@ -72,6 +75,8 @@ class updatesign extends SignAction {
                                 mindist = dist;
                                 mindistloc = refpt;
                                 mindistsr = sr;
+                                mindistfpr = fpr;
+                                mindiststyle = pidsstyle;
                             }
                         }
                     }
@@ -79,7 +84,8 @@ class updatesign extends SignAction {
                     if (mindistloc != null) {
                         String arrivepa = mindistsr.getTextPa().get("arrive");
                         if (arrivepa != null) {
-                            // TODO: Placeholder replacement here
+                            StringBuilder strb = getPlaceholderReplacedString(stl, linesys, mindistfpr.sta(), mindiststyle);
+                            p.sendMessage(strb.toString());
                         }
                     }
                 }
@@ -144,7 +150,7 @@ class updatesign extends SignAction {
                     // Set time to 0 only if it does not exist, or stat is stop
                     time = !trainlist.dataconfig.contains(trainname + ".time") || stat.equals("stop") ? 0 : trainlist.dataconfig.getInt(trainname + ".time");
                     // Arrival text PA
-                    arrivalTextPa(stat, stl, location);
+                    arrivalTextPa(stat, stl, linesys, location);
                 }
             } else {
                 time = stl.getTime().get(stl.getStaIndex(location));

@@ -10,6 +10,7 @@ import com.bergerkiller.bukkit.tc.utils.SignBuildOptions;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +48,16 @@ class carpasign extends SignAction {
     }
 
     private void inCarPaSystem(MinecartMember<?> m, statimelist stl, String linesys, String location, String style) {
+        StringBuilder strb = getPlaceholderReplacedString(stl, linesys, location, style);
+        // Play announcement to passengers
+        for (Entity e : m.getEntity().getPassengers()) {
+            if (e instanceof Player p) {
+                p.sendMessage(strb.toString());
+            }
+        }
+    }
+
+    static @NonNull StringBuilder getPlaceholderReplacedString(statimelist stl, String linesys, String location, String style) {
         int thisstaindex = stl.getStaIndex(location);
         List<String> stylelines = pastylelist.dataconfig.getStringList(style + ".text");
         String[] line = Objects.requireNonNull(linetypelist.dataconfig.getString(linesys + ".line")).split("\\|");
@@ -132,12 +143,7 @@ class carpasign extends SignAction {
                 }
             }
         }
-        // Play announcement to passengers
-        for (Entity e : m.getEntity().getPassengers()) {
-            if (e instanceof Player p) {
-                p.sendMessage(strb.toString());
-            }
-        }
+        return strb;
     }
 
     @Override
