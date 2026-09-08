@@ -16,6 +16,7 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.Set;
 
+import static me.fiveave.inpids.cmds.findPids;
 import static me.fiveave.inpids.main.*;
 import static me.fiveave.inpids.pidsupdate.getPidsLocFromPosPath;
 import static me.fiveave.inpids.pidsupdate.getPospath;
@@ -43,16 +44,43 @@ class updatesign extends SignAction {
                     int mid = loclist.size() / 2;
                     refloclist.add(loclist.get(mid));
                 }
-                /* updatesign request
-                -> get platpidssys locations
-                -> stylelist.yml <-- FIXME: ISSUE!
+                /* updatesign request (done)
+                -> get platpidssys locations (done)
+                -> stylelist.yml (done)
+                -> PIDS display selection (done)
                 -> placeholder replacement
-                -> send non-duplicating text message to player
+                -> send text message to player
                  */
-                // Get suitable players
-                for (Location refpt : refloclist) {
-                    for (Player p : Bukkit.getOnlinePlayers()) {
+                // For every player find the most suitable PIDS
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    // Find min distance of ref point to player
+                    double mindist = Double.MAX_VALUE;
+                    Location mindistloc = null;
+                    stylerec mindistsr = null;
+                    for (Location refpt : refloclist) {
                         double dist = p.getLocation().distance(refpt);
+                        // Get style for this PIDS display
+                        cmds.FindPidsResult fpr = findPids(p.getWorld().getBlockAt(refpt));
+                        if (fpr != null) {
+                            // staplat is already known, only PIDS no. is needed
+                            String stylepath = staplat + ".locations." + fpr.pidsno() + ".style";
+                            String pidsstyle = stapidslist.dataconfig.getString(stylepath);
+                            stylerec sr = stylemap.get(pidsstyle);
+                            int paradius = sr.getPaRadius();
+                            // Must be in range as well
+                            if (dist < mindist && dist <= paradius) {
+                                mindist = dist;
+                                mindistloc = refpt;
+                                mindistsr = sr;
+                            }
+                        }
+                    }
+                    // Play PA to player (if found)
+                    if (mindistloc != null) {
+                        String arrivepa = mindistsr.getTextPa().get("arrive");
+                        if (arrivepa != null) {
+                            // TODO: Placeholder replacement here
+                        }
                     }
                 }
             }

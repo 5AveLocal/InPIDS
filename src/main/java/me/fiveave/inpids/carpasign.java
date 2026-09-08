@@ -46,7 +46,6 @@ class carpasign extends SignAction {
         }
     }
 
-    // TODO: Finish the in-car PA system
     private void inCarPaSystem(MinecartMember<?> m, statimelist stl, String linesys, String location, String style) {
         int thisstaindex = stl.getStaIndex(location);
         List<String> stylelines = pastylelist.dataconfig.getStringList(style + ".text");

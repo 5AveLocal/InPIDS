@@ -32,6 +32,21 @@ class cmds implements CommandExecutor, TabCompleter, Listener {
         sender.sendMessage(INPIDS_HEAD + ChatColor.RED + x);
     }
 
+    static FindPidsResult findPids(Block b) {
+        // Get from data config
+        for (String s : stapidslist.dataconfig.getKeys(true)) {
+            ConfigurationSection cs = stapidslist.dataconfig.getConfigurationSection(s);
+            if (cs != null && s.contains(".pos")) {
+                Location loc = cs.getLocation(".0");
+                if (loc != null && loc.equals(b.getLocation())) {
+                    String[] splits1 = s.split("\\.");
+                    return new FindPidsResult(splits1[0], Integer.parseInt(splits1[1]), Integer.parseInt(splits1[3]), s);
+                }
+            }
+        }
+        return null;
+    }
+
     @SuppressWarnings("NullableProblems")
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -113,7 +128,7 @@ class cmds implements CommandExecutor, TabCompleter, Listener {
                             plat2 = Integer.parseInt(args[2]);
                             pidsno2 = Integer.parseInt(args[3]);
                         } else {
-                            FindPidsResult fpr = findPIDS(b2);
+                            FindPidsResult fpr = findPids(b2);
                             if (fpr != null) {
                                 sta2 = fpr.sta;
                                 plat2 = fpr.plat;
@@ -139,7 +154,7 @@ class cmds implements CommandExecutor, TabCompleter, Listener {
                         // Get sign
                         Block b3 = p.getTargetBlock(Collections.singleton(Material.AIR), 5);
                         String purelocstr3 = b3.getLocation().getBlockX() + " " + b3.getLocation().getBlockY() + " " + b3.getLocation().getBlockZ();
-                        FindPidsResult fpr3 = findPIDS(b3);
+                        FindPidsResult fpr3 = findPids(b3);
                         if (fpr3 == null) {
                             playerErrorMsg(sender, "PIDS not found at " + purelocstr3 + ".");
                             return true;
@@ -196,21 +211,6 @@ class cmds implements CommandExecutor, TabCompleter, Listener {
             }
         });
         return result;
-    }
-
-    FindPidsResult findPIDS(Block b) {
-        // Get from data config
-        for (String s : stapidslist.dataconfig.getKeys(true)) {
-            ConfigurationSection cs = stapidslist.dataconfig.getConfigurationSection(s);
-            if (cs != null && s.contains(".pos")) {
-                Location loc = cs.getLocation(".0");
-                if (loc != null && loc.equals(b.getLocation())) {
-                    String[] splits1 = s.split("\\.");
-                    return new FindPidsResult(splits1[0], Integer.parseInt(splits1[1]), Integer.parseInt(splits1[3]), s);
-                }
-            }
-        }
-        return null;
     }
 
     record FindPidsResult(String sta, int plat, int pidsno, String path) {

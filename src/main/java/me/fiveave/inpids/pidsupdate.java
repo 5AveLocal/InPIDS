@@ -50,7 +50,7 @@ class pidsupdate {
     static void updateSinglePidsDisplay(String stacode, String plat, ArrayList<deprec> depreclist, String pidsindex) {
         try {
             String staplat = stacode + "." + plat;
-            String indexpath = stacode + "." + plat + ".locations." + pidsindex;
+            String indexpath = staplat + ".locations." + pidsindex;
             String stylepath = indexpath + ".style";
             String pidsstyle = stapidslist.dataconfig.getString(stylepath);
             stylerec sr = stylemap.get(pidsstyle);

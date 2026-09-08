@@ -22,6 +22,10 @@ class stylerec {
     private final ArrayList<String> styles = new ArrayList<>();
     /// List of messages of PIDS display
     private final HashMap<String, String> messages = new HashMap<>();
+    /// PA broadcasting radius
+    private final int paradius;
+    /// List of text PAs
+    private final HashMap<String, String> textpa = new HashMap<>();
 
     /// PIDS style record object
     ///
@@ -32,6 +36,7 @@ class stylerec {
         lines = stylelist.dataconfig.getIntegerList(pidsstyle + ".lines");
         loopinterval = stylelist.dataconfig.getInt(pidsstyle + ".loopinterval");
         flashinterval = stylelist.dataconfig.getInt(pidsstyle + ".flashinterval");
+        paradius = stylelist.dataconfig.getInt(pidsstyle + ".pa.radius");
         // Add styles (size = height * width)
         for (int i = 0; i < height * width; i++) {
             styles.add(stylelist.dataconfig.getString(pidsstyle + ".style." + i));
@@ -41,6 +46,12 @@ class stylerec {
         Set<String> msgset = cs.getKeys(false);
         for (String msg : msgset) {
             messages.put(msg, stylelist.dataconfig.getString(pidsstyle + ".messages." + msg));
+        }
+        // Add text PAs
+        ConfigurationSection cs2 = Objects.requireNonNull(stylelist.dataconfig.getConfigurationSection(pidsstyle + ".pa.text"));
+        Set<String> patxtset = cs2.getKeys(false);
+        for (String txt : patxtset) {
+            textpa.put(txt, stylelist.dataconfig.getString(pidsstyle + ".pa.text." + txt));
         }
     }
 
@@ -77,5 +88,15 @@ class stylerec {
     /// @return HashMap of messages in PIDS display
     HashMap<String, String> getMessages() {
         return messages;
+    }
+
+    /// @return HashMap of text PAs in PIDS display
+    HashMap<String, String> getTextPa() {
+        return textpa;
+    }
+
+    /// @return PA broadcasting radius
+    public int getPaRadius() {
+        return paradius;
     }
 }
