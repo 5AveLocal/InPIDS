@@ -21,43 +21,7 @@ import static me.fiveave.inpids.main.*;
 /// inpidscarpa sign class
 class carpasign extends SignAction {
 
-    @Override
-    public boolean match(SignActionEvent info) {
-        return info.isType("inpidscarpa");
-    }
-
-    @Override
-    public void execute(SignActionEvent cartevent) {
-        if (cartevent.isAction(SignActionType.GROUP_ENTER, SignActionType.REDSTONE_ON) && cartevent.hasRailedMember() && cartevent.isPowered()) {
-            // Train info
-            MinecartGroup mg = cartevent.getGroup();
-            // Get sign info
-            String linesys = cartevent.getLine(2); // linesys includes both line name and train type
-            String[] l3 = cartevent.getLine(3).split(" ");
-            String location = l3[0]; // Location: station on linesys
-            String style = l3[1]; // PA text style (separate file for every status)
-            // Getters
-            statimelist stl = stlmap.get(linesys);
-            if (stl == null) {
-                errorLog(new Exception(linesys + ".csv does not exist!"));
-                return;
-            }
-            // Run for each cart, get passengers to play PA
-            mg.forEach(m -> inCarPaSystem(m, stl, linesys, location, style));
-        }
-    }
-
-    private void inCarPaSystem(MinecartMember<?> m, statimelist stl, String linesys, String location, String style) {
-        StringBuilder strb = getPlaceholderReplacedString(stl, linesys, location, style);
-        // Play announcement to passengers
-        for (Entity e : m.getEntity().getPassengers()) {
-            if (e instanceof Player p) {
-                p.sendMessage(strb.toString());
-            }
-        }
-    }
-
-    static @NonNull StringBuilder getPlaceholderReplacedString(statimelist stl, String linesys, String location, String style) {
+    @NonNull StringBuilder getCarPaPlaceholderReplacedString(statimelist stl, String linesys, String location, String style) {
         int thisstaindex = stl.getStaIndex(location);
         List<String> stylelines = pastylelist.dataconfig.getStringList(style + ".text");
         String[] line = Objects.requireNonNull(linetypelist.dataconfig.getString(linesys + ".line")).split("\\|");
@@ -67,7 +31,7 @@ class carpasign extends SignAction {
         String orilinecode = linetypelist.dataconfig.getString(linesys + ".ori_line_code");
         String altlinecode = linetypelist.dataconfig.getString(linesys + ".alt_line_code");
         StringBuilder strb = new StringBuilder();
-        String doordir = Objects.requireNonNull(pastylelist.dataconfig.getString(style + ".doordir." + stl.getDoorDir().get(thisstaindex)));
+        String doordir = pastylelist.dataconfig.getString(style + ".doordir." + stl.getDoorDir().get(thisstaindex));
         ArrayList<String[]> staname = stl.getStaname();
         ArrayList<String> stacode = stl.getStacode();
         ArrayList<String> transfers = stl.getTransfers();
@@ -131,7 +95,9 @@ class carpasign extends SignAction {
             }
 
             // Door direction
-            appendedstr = appendedstr.replace("%door_dir", doordir);
+            if (doordir != null) {
+                appendedstr = appendedstr.replace("%door_dir", doordir);
+            }
             // Color replacement
             appendedstr = colorparser.parseColors(appendedstr);
             // Appending and station counting
@@ -144,6 +110,42 @@ class carpasign extends SignAction {
             }
         }
         return strb;
+    }
+
+    @Override
+    public boolean match(SignActionEvent info) {
+        return info.isType("inpidscarpa");
+    }
+
+    @Override
+    public void execute(SignActionEvent cartevent) {
+        if (cartevent.isAction(SignActionType.GROUP_ENTER, SignActionType.REDSTONE_ON) && cartevent.hasRailedMember() && cartevent.isPowered()) {
+            // Train info
+            MinecartGroup mg = cartevent.getGroup();
+            // Get sign info
+            String linesys = cartevent.getLine(2); // linesys includes both line name and train type
+            String[] l3 = cartevent.getLine(3).split(" ");
+            String location = l3[0]; // Location: station on linesys
+            String style = l3[1]; // PA text style (separate file for every status)
+            // Getters
+            statimelist stl = stlmap.get(linesys);
+            if (stl == null) {
+                errorLog(new Exception(linesys + ".csv does not exist!"));
+                return;
+            }
+            // Run for each cart, get passengers to play PA
+            mg.forEach(m -> inCarPaSystem(m, stl, linesys, location, style));
+        }
+    }
+
+    private void inCarPaSystem(MinecartMember<?> m, statimelist stl, String linesys, String location, String style) {
+        StringBuilder strb = getCarPaPlaceholderReplacedString(stl, linesys, location, style);
+        // Play announcement to passengers
+        for (Entity e : m.getEntity().getPassengers()) {
+            if (e instanceof Player p) {
+                p.sendMessage(strb.toString());
+            }
+        }
     }
 
     @Override

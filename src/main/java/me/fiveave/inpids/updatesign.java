@@ -12,11 +12,12 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Set;
 
-import static me.fiveave.inpids.carpasign.getPlaceholderReplacedString;
 import static me.fiveave.inpids.cmds.findPids;
 import static me.fiveave.inpids.main.*;
 import static me.fiveave.inpids.pidsupdate.getPidsLocFromPosPath;
@@ -41,9 +42,7 @@ class updatesign extends SignAction {
                 for (String pidsindex : pidsset) {
                     String pospath = getPospath(pidsindex, staplat);
                     ArrayList<Location> loclist = getPidsLocFromPosPath(pospath);
-                    // Get middle block of single PIDS display as reference point
-                    int mid = loclist.size() / 2;
-                    refloclist.add(loclist.get(mid));
+                    refloclist.add(loclist.get(0));
                 }
                 // For every player find the most suitable PIDS
                 for (Player p : Bukkit.getOnlinePlayers()) {
@@ -51,7 +50,6 @@ class updatesign extends SignAction {
                     double mindist = Double.MAX_VALUE;
                     Location mindistloc = null;
                     stylerec mindistsr = null;
-                    String mindiststyle = null;
                     cmds.FindPidsResult mindistfpr = null;
                     for (Location refpt : refloclist) {
                         double dist = p.getLocation().distance(refpt);
@@ -69,7 +67,6 @@ class updatesign extends SignAction {
                                 mindistloc = refpt;
                                 mindistsr = sr;
                                 mindistfpr = fpr;
-                                mindiststyle = pidsstyle;
                             }
                         }
                     }
@@ -77,13 +74,86 @@ class updatesign extends SignAction {
                     if (mindistloc != null) {
                         String arrivepa = mindistsr.getTextPa().get("arrive");
                         if (arrivepa != null) {
-                            StringBuilder strb = getPlaceholderReplacedString(stl, linesys, mindistfpr.sta(), mindiststyle);
+                            StringBuilder strb = getArrivePaPlaceholderReplacedString(stl, linesys, mindistfpr.sta(), arrivepa);
                             p.sendMessage(strb.toString());
                         }
                     }
                 }
             }
         }
+    }
+
+    static @NonNull StringBuilder getArrivePaPlaceholderReplacedString(statimelist stl, String linesys, String location, String str) {
+        int thisstaindex = stl.getStaIndex(location);
+        String[] line = Objects.requireNonNull(linetypelist.dataconfig.getString(linesys + ".line")).split("\\|");
+        String linecolor = Objects.requireNonNull(linetypelist.dataconfig.getString(linesys + ".line_color"));
+        String[] type = Objects.requireNonNull(linetypelist.dataconfig.getString(linesys + ".type")).split("\\|");
+        String typecolor = Objects.requireNonNull(linetypelist.dataconfig.getString(linesys + ".type_color"));
+        String orilinecode = linetypelist.dataconfig.getString(linesys + ".ori_line_code");
+        String altlinecode = linetypelist.dataconfig.getString(linesys + ".alt_line_code");
+        StringBuilder strb = new StringBuilder();
+        ArrayList<String[]> staname = stl.getStaname();
+        ArrayList<String> stacode = stl.getStacode();
+        ArrayList<String> transfers = stl.getTransfers();
+        int stlsize = stl.getSize();
+        int terminusindex = stlsize - 1;
+        String[] dest = staname.get(terminusindex);
+        // Station counter
+        int i = 0;
+        for (int selindex = i - thisstaindex; selindex < stlsize - thisstaindex; selindex++) {
+            if (str.contains("%sta_" + selindex)) {
+                i = selindex + thisstaindex;
+                break;
+            }
+        }
+        int selindex = i - thisstaindex;
+        String appendedstr = str;
+        boolean append = true;
+        // Lines and train types
+        // Replacement of specific languages
+        for (int langcount = 0; langcount < dest.length; langcount++) {
+            appendedstr = appendedstr.replace("%dest_" + langcount, dest[langcount]);
+        }
+        for (int langcount = 0; langcount < line.length; langcount++) {
+            appendedstr = appendedstr.replace("%line_" + langcount, line[langcount]);
+        }
+        for (int langcount = 0; langcount < type.length; langcount++) {
+            appendedstr = appendedstr.replace("%type_" + langcount, type[langcount]);
+        }
+        // General replacements
+        appendedstr = appendedstr
+                .replace("%dest", String.join(" ", dest))
+                .replace("%line_color", linecolor)
+                .replace("%type_color", typecolor)
+                .replace("%line", String.join(" ", line))
+                .replace("%type", String.join(" ", type));
+
+        // Station display
+        if (i >= stlsize && (str.contains("%sta_") || str.contains("%trans_") || str.contains("%line_color"))) {
+            append = false;
+        } else if (i < stlsize) {
+            // Replacement of specific languages (format: %<param>_<index>_<lang>)
+            for (int langcount = 0; langcount < staname.get(i).length; langcount++) {
+                appendedstr = appendedstr.replace("%sta_" + selindex + "_" + langcount, staname.get(i)[langcount]);
+            }
+            // General replacements
+            String thisstacode = stacode.get(i);
+            if (orilinecode != null && altlinecode != null) {
+                thisstacode = thisstacode.replace(orilinecode, altlinecode);
+            }
+            appendedstr = appendedstr
+                    .replace("%sta_code_" + selindex, thisstacode)
+                    .replace("%sta_" + selindex, String.join(" ", staname.get(i)))
+                    .replace("%trans_" + selindex, String.join(" ", transfers.get(i)));
+        }
+        // Color replacement
+        appendedstr = colorparser.parseColors(appendedstr);
+        // Appending and station counting
+        if (append) {
+            strb.append(appendedstr);
+            strb.append("\n");
+        }
+        return strb;
     }
 
     @Override
