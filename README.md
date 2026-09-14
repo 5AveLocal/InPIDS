@@ -127,6 +127,8 @@ where
 - `<location>` is location of train (station)
 - `[stat/time]` is train status (can be `stop` or `arrive`), or arrival time of train in seconds
 
+This sign can also display a text train arrival announcement if it is defined in `stylelist.yml`, when `stat` = `arrive`.
+
 ### inpidscarpa
 
 Display text announcement on train for all passengers
