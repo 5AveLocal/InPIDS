@@ -7,6 +7,8 @@ import com.bergerkiller.bukkit.tc.events.SignChangeActionEvent;
 import com.bergerkiller.bukkit.tc.signactions.SignAction;
 import com.bergerkiller.bukkit.tc.signactions.SignActionType;
 import com.bergerkiller.bukkit.tc.utils.SignBuildOptions;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -21,7 +23,8 @@ import static me.fiveave.inpids.main.*;
 /// inpidscarpa sign class
 class carpasign extends SignAction {
 
-    @NonNull StringBuilder getCarPaPlaceholderReplacedString(statimelist stl, String linesys, String location, String style) {
+    // TODO: Replace string with TextComponent / BaseComponent
+    @NonNull TextComponent getCarPaPlaceholderReplacedString(statimelist stl, String linesys, String location, String style) {
         int thisstaindex = stl.getStaIndex(location);
         List<String> stylelines = pastylelist.dataconfig.getStringList(style + ".text");
         String[] line = Objects.requireNonNull(linetypelist.dataconfig.getString(linesys + ".line")).split("\\|");
@@ -30,7 +33,7 @@ class carpasign extends SignAction {
         String typecolor = Objects.requireNonNull(linetypelist.dataconfig.getString(linesys + ".type_color"));
         String orilinecode = linetypelist.dataconfig.getString(linesys + ".ori_line_code");
         String altlinecode = linetypelist.dataconfig.getString(linesys + ".alt_line_code");
-        StringBuilder strb = new StringBuilder();
+        TextComponent tc = new TextComponent();
         String doordir = pastylelist.dataconfig.getString(style + ".doordir." + stl.getDoorDir().get(thisstaindex));
         ArrayList<String[]> staname = stl.getStaname();
         ArrayList<String> stacode = stl.getStacode();
@@ -54,6 +57,7 @@ class carpasign extends SignAction {
         for (String s : stylelines) {
             int selindex = i - thisstaindex;
             String appendedstr = s;
+            BaseComponent bc = null;
             boolean append = true;
 
             // Lines and train types
@@ -102,14 +106,14 @@ class carpasign extends SignAction {
             appendedstr = colorparser.parseColors(appendedstr);
             // Appending and station counting
             if (append) {
-                strb.append(appendedstr);
-                strb.append("\n");
+                tc.addExtra(bc);
+                tc.addExtra("\n");
                 if (s.contains("%trans_")) {
                     i++;
                 }
             }
         }
-        return strb;
+        return tc;
     }
 
     @Override
@@ -139,11 +143,11 @@ class carpasign extends SignAction {
     }
 
     private void inCarPaSystem(MinecartMember<?> m, statimelist stl, String linesys, String location, String style) {
-        StringBuilder strb = getCarPaPlaceholderReplacedString(stl, linesys, location, style);
+        TextComponent tc = getCarPaPlaceholderReplacedString(stl, linesys, location, style);
         // Play announcement to passengers
         for (Entity e : m.getEntity().getPassengers()) {
             if (e instanceof Player p) {
-                p.sendMessage(strb.toString());
+                p.spigot().sendMessage(tc);
             }
         }
     }
