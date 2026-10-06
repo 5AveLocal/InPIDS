@@ -22,9 +22,9 @@ public class colorparser {
             return message;
         }
 
-        // Escape \& sequences
+        // Escape & sequences
         message = message.replace("\\&", "§AMPERSAND§");
-        // Escape \& sequences
+        // Escape \n sequences
         message = message.replace("\\\\n", "§BACKSLASH_N§");
 
         // Parse colors normally
@@ -33,7 +33,7 @@ public class colorparser {
         message = ChatColor.translateAlternateColorCodes('&', message);
         message = message.replace("\\n", "\n");
 
-        // Restore literal &
+        // Restore literal & and \n
         message = message.replace("§AMPERSAND§", "&");
         message = message.replace("§BACKSLASH_N§", "\\\\n");
 
