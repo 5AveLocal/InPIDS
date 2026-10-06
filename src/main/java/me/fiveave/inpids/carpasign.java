@@ -24,7 +24,8 @@ import static me.fiveave.inpids.main.*;
 class carpasign extends SignAction {
 
     // TODO: Replace string with TextComponent / BaseComponent
-    @NonNull TextComponent getCarPaPlaceholderReplacedString(statimelist stl, String linesys, String location, String style) {
+    @NonNull
+    TextComponent getCarPaPlaceholderReplacedString(statimelist stl, String linesys, String location, String style) {
         int thisstaindex = stl.getStaIndex(location);
         List<String> stylelines = pastylelist.dataconfig.getStringList(style + ".text");
         String[] line = Objects.requireNonNull(linetypelist.dataconfig.getString(linesys + ".line")).split("\\|");
@@ -57,9 +58,7 @@ class carpasign extends SignAction {
         for (String s : stylelines) {
             int selindex = i - thisstaindex;
             String appendedstr = s;
-            BaseComponent bc = null;
             boolean append = true;
-
             // Lines and train types
             // Replacement of specific languages
             for (int langcount = 0; langcount < dest.length; langcount++) {
@@ -78,7 +77,6 @@ class carpasign extends SignAction {
                     .replace("%type_color", typecolor)
                     .replace("%line", String.join(" ", line))
                     .replace("%type", String.join(" ", type));
-
             // Station display
             if (i >= stlsize && (s.contains("%sta_") || s.contains("%trans_") || s.contains("%line_color"))) {
                 append = false;
@@ -97,16 +95,17 @@ class carpasign extends SignAction {
                         .replace("%sta_" + selindex, String.join(" ", staname.get(i)))
                         .replace("%trans_" + selindex, String.join(" ", transfers.get(i)));
             }
-
             // Door direction
             if (doordir != null) {
                 appendedstr = appendedstr.replace("%door_dir", doordir);
             }
             // Color replacement
-            appendedstr = colorparser.parseColors(appendedstr);
+            BaseComponent[] bca = TextComponent.fromLegacyText(colorparser.parseColors(appendedstr));
             // Appending and station counting
             if (append) {
-                tc.addExtra(bc);
+                for (BaseComponent bc : bca) {
+                    tc.addExtra(bc);
+                }
                 tc.addExtra("\n");
                 if (s.contains("%trans_")) {
                     i++;

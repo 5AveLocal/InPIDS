@@ -14,14 +14,14 @@ import static me.fiveave.inpids.statimelist.getTimeToStation;
 
 /// Platform PIDS system class
 class platpidssys {
+    /// Station code
+    final String stacode;
+    /// Platform number
+    final String plat;
+    /// List of departure record lists
+    final ArrayList<deprec> depreclist;
     /// Set of PIDS displays
     Set<String> pidsset;
-    /// Station code
-    String stacode;
-    /// Platform number
-    String plat;
-    /// List of departure record lists
-    ArrayList<deprec> depreclist;
     /// Stop clock
     boolean stopclock;
 

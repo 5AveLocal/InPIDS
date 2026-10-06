@@ -30,7 +30,8 @@ where
 - `<time>` is the time from the last station to this station
 - `<stop/pass>` is used to set whether the train will stop or pass this station
 - `<door_direction>` is the door direction (e.g. `left`, `right` or other custom values)
-- `<transfers>` is the transfer list (please add color codes and type the full list in, use double quotes (`"`) to surround the list if there are any commas)
+- `<transfers>` is the transfer list (please add color codes and type the full list in, use double quotes (`"`) to
+  surround the list if there are any commas)
 
 ### `linetypelist.yml`
 
@@ -41,10 +42,10 @@ Then fill in the fields according to the list below:
 - `type`: train type
 - `line_color`: line color
 - `type_color`: train type color
-- `ori_line_code` and `alt_line_code` (optional): original and alternative line codes (for replacement, must be paired together)
+- `ori_line_code` and `alt_line_code` (optional): original and alternative line codes (for replacement, must be paired
+  together)
 
 Use `|` (vertical bar) for separating different languages.
-
 
 ### `stylelist.yml`
 
@@ -63,27 +64,35 @@ There are a few placeholders that you can use:
 
 ### `stapidslist.yml`
 
-There is generally no need to modify this file, as you can always use the `/inpids setpids` command to register, and the `/inpids delpids` command to remove
+There is generally no need to modify this file, as you can always use the `/inpids setpids` command to register, and the
+`/inpids delpids` command to remove
 a PIDS monitor.
 
 ### `pastylelist.yml`
 
 Please set up a new announcement style format with reference to the default values.<br/>
-Start your style format with a name, then `text` for the main format itself, and `doordir` for door directions (types can be modified).<br/>
+Start your style format with a name, then `text` for the main format itself, and `doordir` for door directions (types
+can be modified).<br/>
 There are some placeholders that you can use:
 
 - `%line_color` for line color (Minecraft color codes `0-f`)
 - `%line` for line name
 - `%type_color` for train type color (Minecraft color codes `0-f`)
 - `%type` for train type name
-- `%sta_code_<num>` for station number, in which for `<num>`, -1 is previous station, 0 is this station, 1 is next station, etc.
-  - Add `ori_line_code` and `alt_line_code` fields in `linetypelist.yml` if the line code you want to display is different than that in `.csv` files in `statimelist` folder.
-- `%sta_<num>` for station name, in which for `<num>`, -1 is previous station, 0 is this station, 1 is next station, etc.
-- `%trans_<num>` for transfer list, in which for `<num>`, -1 is previous station, 0 is this station, 1 is next station, etc.
+- `%sta_code_<num>` for station number, in which for `<num>`, -1 is previous station, 0 is this station, 1 is next
+  station, etc.
+    - Add `ori_line_code` and `alt_line_code` fields in `linetypelist.yml` if the line code you want to display is
+      different than that in `.csv` files in `statimelist` folder.
+- `%sta_<num>` for station name, in which for `<num>`, -1 is previous station, 0 is this station, 1 is next station,
+  etc.
+- `%trans_<num>` for transfer list, in which for `<num>`, -1 is previous station, 0 is this station, 1 is next station,
+  etc.
 - `%door_dir` for door direction display
 
-Please note that all names above will include all languages available in `statimelist.yml` and `linetypelist.yml`, with each language separated by a space (` `).
-For specific languages, add `_<lang_index>` directly behind the placeholder (not available for colors for obvious reasons).
+Please note that all names above will include all languages available in `statimelist.yml` and `linetypelist.yml`, with
+each language separated by a space (` `).
+For specific languages, add `_<lang_index>` directly behind the placeholder (not available for colors for obvious
+reasons).
 
 ## ⚙️ Commands
 
@@ -127,7 +136,8 @@ where
 - `<location>` is location of train (station)
 - `[stat/time]` is train status (can be `stop` or `arrive`), or arrival time of train in seconds
 
-This sign can also display a text train arrival announcement if it is defined in `stylelist.yml`, when `stat` = `arrive`.
+This sign can also display a text train arrival announcement if it is defined in `stylelist.yml`, when `stat` =
+`arrive`.
 
 ### inpidscarpa
 
