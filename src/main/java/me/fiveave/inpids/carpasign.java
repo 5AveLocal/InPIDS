@@ -15,6 +15,7 @@ import org.bukkit.entity.Player;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -23,7 +24,6 @@ import static me.fiveave.inpids.main.*;
 /// inpidscarpa sign class
 class carpasign extends SignAction {
 
-    // TODO: Replace string with TextComponent / BaseComponent
     @NonNull
     TextComponent getCarPaPlaceholderReplacedString(statimelist stl, String linesys, String location, String style) {
         int thisstaindex = stl.getStaIndex(location);
@@ -55,6 +55,7 @@ class carpasign extends SignAction {
             }
             if (stopouterloop) break;
         }
+        // Get string from every line in the file
         for (String s : stylelines) {
             int selindex = i - thisstaindex;
             String appendedstr = s;
@@ -99,11 +100,52 @@ class carpasign extends SignAction {
             if (doordir != null) {
                 appendedstr = appendedstr.replace("%door_dir", doordir);
             }
-            // Color replacement
-            BaseComponent[] bca = TextComponent.fromLegacyText(colorparser.parseColors(appendedstr));
+            /* Color replacement and converting to BaseComponent
+               This will break up the String and split it in many BaseComponents */
+            ArrayList<BaseComponent> bcal = new ArrayList<>(Arrays.asList(TextComponent.fromLegacyText(colorparser.parseColors(appendedstr))));
+            /* TODO: convert text placeholder to BaseComponent object
+               Find the target and separate the BaseComponent, inserting a new one in with the hoverable text
+               Assume more than 1 transfer line exists, so make a helper method to keep splitting
+               Operation order: find -> split string -> cut -> make new BaseComponent -> set params -> insert in bcal */
+            // TODO: Loop through the transfer placeholders here, replace teststr when done
+            String teststr = "%trans_TEST_STRING";
+            ArrayList<Integer> contlist = new ArrayList<>();
+            // Search for index
+            for (int j = 0; j < bcal.size(); j++) {
+                BaseComponent bc = bcal.get(j);
+                if (bc.toString().contains(teststr)) {
+                    contlist.add(j);
+                }
+            }
+            // Actions
+            for (int k = 0; k < contlist.size(); k++) {
+                int j = contlist.get(k);
+                BaseComponent bc = bcal.get(j);
+                TextComponent temptc0 = new TextComponent(bc);
+                String fstr = temptc0.getText();
+                // Split this string into components
+                String[] sstr = fstr.split(teststr);
+                // Make replacement for left part
+                TextComponent temptc1 = new TextComponent(sstr[0]);
+                temptc1.copyFormatting(temptc0);
+                bcal.set(j, temptc1);
+                // Add middle part
+                TextComponent temptc2 = new TextComponent(teststr);
+                // TODO: Add formatting here...
+                bcal.add(j + 1, temptc2);
+                // Add back right part
+                TextComponent temptc3 = new TextComponent(sstr[1]);
+                temptc3.copyFormatting(temptc0);
+                bcal.add(j + 2, temptc3);
+                // Shift values inside contlist for the ones after this after setting!
+                for (int k1 = k + 1; k1 < contlist.size(); k1++) {
+                    contlist.set(k1, contlist.get(k1) + 2);
+                }
+            }
+            // TODO: Ends here, close loop here when done
             // Appending and station counting
             if (append) {
-                for (BaseComponent bc : bca) {
+                for (BaseComponent bc : bcal) {
                     tc.addExtra(bc);
                 }
                 tc.addExtra("\n");
