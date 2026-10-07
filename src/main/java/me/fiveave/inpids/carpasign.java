@@ -132,6 +132,7 @@ class carpasign extends SignAction {
                 // Add middle part
                 TextComponent temptc2 = new TextComponent(teststr);
                 // TODO: Add formatting here...
+                temptc2.copyFormatting(temptc0);
                 bcal.add(j + 1, temptc2);
                 // Add back right part
                 TextComponent temptc3 = new TextComponent(sstr[1]);
