@@ -31,7 +31,7 @@ public final class main extends JavaPlugin {
     static main plugin;
     /// Boolean on whether train list clock is running
     static boolean tlClock;
-    static absyaml linetypelist, stylelist, trainlist, stapidslist, pastylelist;
+    static absyaml linetypelist, stylelist, trainlist, stapidslist, pastylelist, translist;
     static boolean tlsave, splsave;
 
     /// Error log method
@@ -58,6 +58,7 @@ public final class main extends JavaPlugin {
         trainlist = new absyaml(plugin, "trainlist.yml");
         stapidslist = new absyaml(plugin, "stapidslist.yml");
         pastylelist = new absyaml(plugin, "pastylelist.yml");
+        translist = new absyaml(plugin, "translist.yml");
         // Default statimelist "iwakinoup"
         String iwakinoup = "statimelist/iwakinoup.csv";
         if (!new File(plugin.getDataFolder() + "/" + iwakinoup).exists()) {

@@ -7,9 +7,12 @@ import com.bergerkiller.bukkit.tc.events.SignChangeActionEvent;
 import com.bergerkiller.bukkit.tc.signactions.SignAction;
 import com.bergerkiller.bukkit.tc.signactions.SignActionType;
 import com.bergerkiller.bukkit.tc.utils.SignBuildOptions;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.ChatColor;
+import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -39,6 +42,7 @@ class carpasign extends SignAction {
         ArrayList<String[]> staname = stl.getStaname();
         ArrayList<String> stacode = stl.getStacode();
         ArrayList<String> transfers = stl.getTransfers();
+        ArrayList<String> transferplaceholders = new ArrayList<>(translist.dataconfig.getKeys(false));
         int stlsize = stl.getSize();
         int terminusindex = stlsize - 1;
         String[] dest = staname.get(terminusindex);
@@ -103,47 +107,38 @@ class carpasign extends SignAction {
             /* Color replacement and converting to BaseComponent
                This will break up the String and split it in many BaseComponents */
             ArrayList<BaseComponent> bcal = new ArrayList<>(Arrays.asList(TextComponent.fromLegacyText(colorparser.parseColors(appendedstr))));
-            /* TODO: convert text placeholder to BaseComponent object
-               Find the target and separate the BaseComponent, inserting a new one in with the hoverable text
-               Assume more than 1 transfer line exists, so make a helper method to keep splitting
-               Operation order: find -> split string -> cut -> make new BaseComponent -> set params -> insert in bcal */
-            // TODO: Loop through the transfer placeholders here, replace teststr when done
-            String teststr = "%trans_TEST_STRING";
-            ArrayList<Integer> contlist = new ArrayList<>();
-            // Search for index
-            for (int j = 0; j < bcal.size(); j++) {
-                BaseComponent bc = bcal.get(j);
-                if (bc.toString().contains(teststr)) {
-                    contlist.add(j);
+            for (String transsuffix : transferplaceholders) {
+                String transfull = "%trans_" + transsuffix;
+                for (int j = 0; j < bcal.size(); j++) {
+                    BaseComponent bc = bcal.get(j);
+                    TextComponent temptc0 = new TextComponent(bc);
+                    String fstr = temptc0.toLegacyText();
+                    // Replace transfull with the actual contents
+                    if (fstr.contains(transfull)) {
+                        String[] sstr = fstr.split(transfull, -1);
+                        TextComponent container = new TextComponent("");
+                        container.copyFormatting(temptc0);
+                        List<BaseComponent> extraList = new ArrayList<>();
+                        for (int k = 0; k < sstr.length; k++) {
+                            if (!sstr[k].isEmpty()) {
+                                BaseComponent[] part = TextComponent.fromLegacyText(sstr[k]);
+                                extraList.addAll(Arrays.asList(part));
+                            }
+                            if (k < sstr.length - 1) {
+                                String maintext = colorparser.parseColors(translist.dataconfig.getString(transsuffix + ".text"));
+                                String hovertext = colorparser.parseColors(translist.dataconfig.getString(transsuffix + ".hover"));
+                                TextComponent temptc2 = new TextComponent(maintext);
+                                temptc2.copyFormatting(temptc0);
+                                temptc2.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                        new Text(new ComponentBuilder(hovertext).create())));
+                                extraList.add(temptc2);
+                            }
+                        }
+                        container.setExtra(extraList);
+                        bcal.set(j, container);
+                    }
                 }
             }
-            // Actions
-            for (int k = 0; k < contlist.size(); k++) {
-                int j = contlist.get(k);
-                BaseComponent bc = bcal.get(j);
-                TextComponent temptc0 = new TextComponent(bc);
-                String fstr = temptc0.getText();
-                // Split this string into components
-                String[] sstr = fstr.split(teststr);
-                // Make replacement for left part
-                TextComponent temptc1 = new TextComponent(sstr[0]);
-                temptc1.copyFormatting(temptc0);
-                bcal.set(j, temptc1);
-                // Add middle part
-                TextComponent temptc2 = new TextComponent(teststr);
-                // TODO: Add formatting here...
-                temptc2.copyFormatting(temptc0);
-                bcal.add(j + 1, temptc2);
-                // Add back right part
-                TextComponent temptc3 = new TextComponent(sstr[1]);
-                temptc3.copyFormatting(temptc0);
-                bcal.add(j + 2, temptc3);
-                // Shift values inside contlist for the ones after this after setting!
-                for (int k1 = k + 1; k1 < contlist.size(); k1++) {
-                    contlist.set(k1, contlist.get(k1) + 2);
-                }
-            }
-            // TODO: Ends here, close loop here when done
             // Appending and station counting
             if (append) {
                 for (BaseComponent bc : bcal) {
