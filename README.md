@@ -94,6 +94,13 @@ each language separated by a space (` `).
 For specific languages, add `_<lang_index>` directly behind the placeholder (not available for colors for obvious
 reasons).
 
+### `translist.yml`
+
+Please set up transfer line placeholders for `.yml` files in `statimelist` folder with reference to the default values.<br/>
+Start your style format with a `<line_name>` as the key,<br/>
+then `text` for the text shown, and `hover` for the text shown when hovered on top.<br/>
+Then placeholder name for this key is `%trans_<line_name>`.
+
 ## ⚙️ Commands
 
 `/inpids setpids <station> <platform> <style> <pidsno>` to register a PIDS monitor, where
