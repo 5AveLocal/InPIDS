@@ -107,37 +107,79 @@ class carpasign extends SignAction {
             /* Color replacement and converting to BaseComponent
                This will break up the String and split it in many BaseComponents */
             ArrayList<BaseComponent> bcal = new ArrayList<>(Arrays.asList(TextComponent.fromLegacyText(colorparser.parseColors(appendedstr))));
-            for (String transsuffix : transferplaceholders) {
-                String transfull = "%trans_" + transsuffix;
-                for (int j = 0; j < bcal.size(); j++) {
-                    BaseComponent bc = bcal.get(j);
-                    TextComponent temptc0 = new TextComponent(bc);
-                    String fstr = temptc0.toLegacyText();
-                    // Replace transfull with the actual contents
-                    if (fstr.contains(transfull)) {
-                        String[] sstr = fstr.split(transfull, -1);
-                        TextComponent container = new TextComponent("");
-                        container.copyFormatting(temptc0);
-                        List<BaseComponent> extraList = new ArrayList<>();
-                        for (int k = 0; k < sstr.length; k++) {
-                            if (!sstr[k].isEmpty()) {
-                                BaseComponent[] part = TextComponent.fromLegacyText(sstr[k]);
-                                extraList.addAll(Arrays.asList(part));
-                            }
-                            if (k < sstr.length - 1) {
-                                String maintext = colorparser.parseColors(translist.dataconfig.getString(transsuffix + ".text"));
-                                String hovertext = colorparser.parseColors(translist.dataconfig.getString(transsuffix + ".hover"));
-                                TextComponent temptc2 = new TextComponent(maintext);
-                                temptc2.copyFormatting(temptc0);
-                                temptc2.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                        new Text(new ComponentBuilder(hovertext).create())));
-                                extraList.add(temptc2);
-                            }
-                        }
-                        container.setExtra(extraList);
-                        bcal.set(j, container);
+            for (int j = 0; j < bcal.size(); j++) {
+                BaseComponent bc = bcal.get(j);
+                String fstr = TextComponent.toLegacyText(bc); // Convert once into a legacy string
+                // Check if this component contains any relevant placeholders
+                boolean hasPlaceholder = false;
+                for (String transsuffix : transferplaceholders) {
+                    if (fstr.contains("%trans_" + transsuffix)) {
+                        hasPlaceholder = true;
+                        break;
                     }
                 }
+                // If no placeholders are found, skip processing for efficiency
+                if (!hasPlaceholder) continue;
+                // Use ComponentBuilder to securely piece together text and events
+                ComponentBuilder builder = new ComponentBuilder("");
+                // Look for placeholders from left to right chronologically
+                while (true) {
+                    String earliestSuffix = null;
+                    int earliestIndex = -1;
+                    String earliestFull = "";
+                    // Determine which placeholder appears first in the current segment
+                    for (String transsuffix : transferplaceholders) {
+                        String transfull = "%trans_" + transsuffix;
+                        int index = fstr.indexOf(transfull);
+                        if (index != -1 && (earliestIndex == -1 || index < earliestIndex)) {
+                            earliestIndex = index;
+                            earliestSuffix = transsuffix;
+                            earliestFull = transfull;
+                        }
+                    }
+                    // If no more placeholders remain, append the rest of the string and exit
+                    if (earliestIndex == -1) {
+                        if (!fstr.isEmpty()) {
+                            builder.append(TextComponent.fromLegacyText(fstr));
+                        }
+                        break;
+                    }
+                    // 1. Append text before the placeholder
+                    String before = fstr.substring(0, earliestIndex);
+                    if (!before.isEmpty()) {
+                        builder.append(TextComponent.fromLegacyText(before));
+                    }
+                    // 2. Fetch the text and hover configurations
+                    String maintext = colorparser.parseColors(translist.dataconfig.getString(earliestSuffix + ".text"));
+                    String hovertext = colorparser.parseColors(translist.dataconfig.getString(earliestSuffix + ".hover"));
+                    // 3. Build components from legacy texts safely
+                    BaseComponent[] replacement = null;
+                    if (maintext != null) {
+                        replacement = TextComponent.fromLegacyText(maintext);
+                    }
+                    BaseComponent[] hoverComponents = null;
+                    if (hovertext != null) {
+                        hoverComponents = TextComponent.fromLegacyText(hovertext);
+                    }
+                    HoverEvent hoverEvent = new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(hoverComponents));
+                    // CRITICAL: Apply the HoverEvent to ALL subcomponents generated from 'maintext'
+                    // Otherwise, if maintext contains color codes, subsequent segments will lose hover.
+                    if (replacement != null) {
+                        for (BaseComponent comp : replacement) {
+                            comp.setHoverEvent(hoverEvent);
+                        }
+                    }
+                    // Append the safely built replacement chunk
+                    if (replacement != null) {
+                        builder.append(replacement);
+                    }
+                    // 4. Shrink the remaining string past the processed placeholder
+                    fstr = fstr.substring(earliestIndex + earliestFull.length());
+                }
+                // Pack the built results back into a clean TextComponent container
+                TextComponent finalContainer = new TextComponent(builder.create());
+                finalContainer.copyFormatting(bc); // Retain original formatting context if needed
+                bcal.set(j, finalContainer);
             }
             // Appending and station counting
             if (append) {
