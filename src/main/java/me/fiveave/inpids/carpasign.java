@@ -17,15 +17,17 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static me.fiveave.inpids.main.*;
 
 /// inpidscarpa sign class
 class carpasign extends SignAction {
+
+    // Precompiled patterns to avoid recompiling regex inside loops
+    private static final Pattern GENERAL_AND_INDEXED_PATTERN = Pattern.compile("%(dest|line_color|type_color|line|type|sta_code|sta|trans|door_dir)(_-?\\d+)?(_\\d+)?");
 
     @NonNull
     TextComponent getCarPaPlaceholderReplacedString(statimelist stl, String linesys, String location, String style) {
@@ -59,6 +61,21 @@ class carpasign extends SignAction {
             }
             if (stopouterloop) break;
         }
+
+        // Pre-compute joined string tokens outside the loop to prevent repeated executions
+        String joinedDest = String.join(" ", dest);
+        String joinedLine = String.join(" ", line);
+        String joinedType = String.join(" ", type);
+
+        // Pre-map static replacements for constant O(1) retrieval speed
+        Map<String, String> staticReplacements = Map.of(
+                "dest", joinedDest,
+                "line_color", linecolor,
+                "type_color", typecolor,
+                "line", joinedLine,
+                "type", joinedType
+        );
+
         // Get string from every line in the file
         for (String s : stylelines) {
             int selindex = i - thisstaindex;
@@ -85,24 +102,85 @@ class carpasign extends SignAction {
             // Station display
             if (i >= stlsize && (s.contains("%sta_") || s.contains("%trans_") || s.contains("%line_color"))) {
                 append = false;
-            } else if (i < stlsize) {
-                // Replacement of specific languages (format: %<param>_<index>_<lang>)
-                for (int langcount = 0; langcount < staname.get(i).length; langcount++) {
-                    appendedstr = appendedstr.replace("%sta_" + selindex + "_" + langcount, staname.get(i)[langcount]);
+            } else {
+                // Final calculation of the conditional variables used in the pass
+                final int finalI = i;
+                final int finalSelindex = selindex;
+                String finalThisstacode = (i < stlsize) ? stacode.get(i) : null;
+                if (finalThisstacode != null && orilinecode != null && altlinecode != null) {
+                    finalThisstacode = finalThisstacode.replace(orilinecode, altlinecode);
                 }
-                // General replacements
-                String thisstacode = stacode.get(i);
-                if (orilinecode != null && altlinecode != null) {
-                    thisstacode = thisstacode.replace(orilinecode, altlinecode);
-                }
-                appendedstr = appendedstr
-                        .replace("%sta_code_" + selindex, thisstacode)
-                        .replace("%sta_" + selindex, String.join(" ", staname.get(i)))
-                        .replace("%trans_" + selindex, String.join(" ", transfers.get(i)));
-            }
-            // Door direction
-            if (doordir != null) {
-                appendedstr = appendedstr.replace("%door_dir", doordir);
+                final String stacodeComputed = finalThisstacode;
+
+                Matcher matcher = GENERAL_AND_INDEXED_PATTERN.matcher(appendedstr);
+
+                // Perform single-pass optimization using Java 9+ Matcher.replaceAll
+                appendedstr = matcher.replaceAll(matchResult -> {
+
+                    // Case 1: Handle language-indexed or array-indexed placeholders (e.g., %dest_0, %line_1, %type_0)
+                    String baseToken = matchResult.group(1);     // e.g., "dest", "sta", "line"
+                    String firstIndexStr = matchResult.group(2); // e.g., "_0", "_-1" (optional)
+                    String langIndexStr = matchResult.group(3);  // e.g., "_0" (optional lang index)
+
+                    String replacement = null;
+
+                    // Structure 1: Process global array-indexed tokens (%dest_0, %line_1, %type_0)
+                    if (firstIndexStr != null && langIndexStr == null) {
+                        int idx = Integer.parseInt(firstIndexStr.substring(1));
+                        switch (baseToken) {
+                            case "dest":
+                                if (idx >= 0 && idx < dest.length) replacement = dest[idx];
+                                break;
+                            case "line":
+                                if (idx >= 0 && idx < line.length) replacement = line[idx];
+                                break;
+                            case "type":
+                                if (idx >= 0 && idx < type.length) replacement = type[idx];
+                                break;
+                        }
+                    }
+
+                    // Structure 2: Process station-specific dynamic calculations (independent flow)
+                    if (replacement == null && finalI < stlsize) {
+                        // 2a. Fully double-indexed placeholders (e.g., %sta_-1_0)
+                        if (firstIndexStr != null && langIndexStr != null) {
+                            if ("sta".equals(baseToken)) {
+                                int targetSelIndex = Integer.parseInt(firstIndexStr.substring(1));
+                                int langIdx = Integer.parseInt(langIndexStr.substring(1));
+                                if (targetSelIndex == finalSelindex) {
+                                    String[] names = staname.get(finalI);
+                                    if (langIdx >= 0 && langIdx < names.length) {
+                                        replacement = names[langIdx];
+                                    }
+                                }
+                            }
+                        }
+                        // 2b. Target-indexed specific properties (e.g., %sta_code_0, %sta_0, %trans_0)
+                        else if (firstIndexStr != null) {
+                            int targetSelIndex = Integer.parseInt(firstIndexStr.substring(1));
+                            if (targetSelIndex == finalSelindex) {
+                                replacement = switch (baseToken) {
+                                    case "sta_code" -> stacodeComputed;
+                                    case "sta" -> String.join(" ", staname.get(finalI));
+                                    case "trans" -> String.join(" ", transfers.get(finalI));
+                                    default -> null;
+                                };
+                            }
+                        }
+                    }
+
+                    // Case 3: Handle global static configurations if no indexed parameters match
+                    if (replacement == null && firstIndexStr == null && langIndexStr == null) {
+                        if (staticReplacements.containsKey(baseToken)) {
+                            replacement = staticReplacements.get(baseToken);
+                        } else if ("door_dir".equals(baseToken) && doordir != null) {
+                            replacement = doordir;
+                        }
+                    }
+
+                    // Safeguard strings against raw regex symbol evaluation ($ or \) and fallback safely
+                    return replacement != null ? Matcher.quoteReplacement(replacement) : matchResult.group(0);
+                });
             }
             /* Color replacement and converting to BaseComponent
                This will break up the String and split it in many BaseComponents */
