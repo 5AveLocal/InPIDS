@@ -63,7 +63,7 @@ class updatesign extends SignAction {
                             stylerec sr = stylemap.get(pidsstyle);
                             int paradius = sr.getPaRadius();
                             // Must be in range as well
-                            if (dist < mindist && dist <= paradius) {
+                            if (dist <= paradius) {
                                 mindist = dist;
                                 mindistloc = refpt;
                                 mindistsr = sr;
