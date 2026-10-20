@@ -56,6 +56,7 @@ class updatesign extends SignAction {
                     cmds.FindPidsResult mindistfpr = null;
                     for (Location refpt : refloclist) {
                         double dist = p.getLocation().distance(refpt);
+                        // Skip to next if not shorter
                         if (dist >= mindist) continue;
                         // Get style for this PIDS display
                         cmds.FindPidsResult fpr = findPids(p.getWorld().getBlockAt(refpt));
@@ -76,6 +77,7 @@ class updatesign extends SignAction {
                     }
                     // Play PA to player (if found)
                     if (mindistloc != null) {
+                        // If found in cache
                         if (arrivalpalist.containsKey(mindistloc)) {
                             String s = arrivalpalist.get(mindistloc);
                             p.sendMessage(s);
@@ -84,6 +86,7 @@ class updatesign extends SignAction {
                             if (arrivepa != null) {
                                 StringBuilder strb = getArrivePaPlaceholderReplacedString(stl, linesys, mindistfpr.sta(), arrivepa);
                                 String str = strb.toString();
+                                // Put converted string in cache
                                 arrivalpalist.put(mindistloc, str);
                                 p.sendMessage(str);
                             }
@@ -221,7 +224,7 @@ class updatesign extends SignAction {
                 } catch (Exception e) {
                     // If stat is set instead
                     stat = l3[1];
-                    // Set time to 0 only if it does not exist, or stat is stop
+                    // Set time to 0 only if it does not exist, or stat is "stop"
                     time = !trainlist.dataconfig.contains(trainname + ".time") || stat.equals("stop") ? 0 : trainlist.dataconfig.getInt(trainname + ".time");
                     // Arrival text PA
                     arrivalTextPa(stat, stl, linesys, location);

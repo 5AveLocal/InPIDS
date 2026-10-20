@@ -62,11 +62,11 @@ class statimelist {
         int currentstaindex = stl.getStaIndex(location);
         int targetstaindex = stl.getStaIndex(targetsta);
         int totaltime = 0;
-        // Early return for target is previous of current
+        // Early return for targets that are previous stations
         if (targetstaindex < currentstaindex) {
             return Integer.MIN_VALUE;
         }
-        // Is station in loop this station?
+        // Is station in loop (i) this station (currentstaindex)?
         for (int i = currentstaindex; i <= targetstaindex; i++) {
             totaltime += i == currentstaindex ? time : stl.getTime().get(i);
         }
