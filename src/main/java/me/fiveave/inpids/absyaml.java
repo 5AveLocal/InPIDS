@@ -13,7 +13,7 @@ import java.util.Set;
 
 import static me.fiveave.inpids.main.errorLog;
 
-/// Abstract yaml class
+/// Abstract YAML class
 class absyaml {
     /// This plugin
     protected final main plugin;
@@ -27,7 +27,7 @@ class absyaml {
     private File file;
 
     /// @param plugin   This plugin
-    /// @param fileName yaml file name
+    /// @param fileName YAML file name
     absyaml(main plugin, String fileName) {
         this.plugin = plugin;
         this.fileName = fileName;

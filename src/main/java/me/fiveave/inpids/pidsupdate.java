@@ -72,7 +72,7 @@ class pidsupdate {
                     int displine = lines.get(count % linesize);
                     String dispstr = null;
                     String trainname = null;
-                    // Skip and set to blank if cannot find
+                    // Skip and set to blank if not found
                     if (count < depreclist.size()) {
                         deprec thisdeprec = depreclist.get(count);
                         trainname = thisdeprec.getName();
@@ -128,7 +128,7 @@ class pidsupdate {
                     // Set sign (format: stacode.plat.locations.pidsno.signno.lineno)
                     String thispospath = pospath + "." + i + "." + displine;
                     try {
-                        // Update only if sign is different than last tick (requires non-null), or train is null
+                        // Update only if sign is different from last tick (requires non-null), or train is null
                         // If dispstr is null or train has passed station then set to blank
                         String setstr = dispstr == null || getTimeToStation(trainname, stacode) == Integer.MIN_VALUE ? "" : dispstr;
                         signtotext.putIfAbsent(thispospath, "");

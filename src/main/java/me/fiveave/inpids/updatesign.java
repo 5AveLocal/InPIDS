@@ -53,6 +53,7 @@ class updatesign extends SignAction {
                     cmds.FindPidsResult mindistfpr = null;
                     for (Location refpt : refloclist) {
                         double dist = p.getLocation().distance(refpt);
+                        if (dist >= mindist) continue;
                         // Get style for this PIDS display
                         cmds.FindPidsResult fpr = findPids(p.getWorld().getBlockAt(refpt));
                         if (fpr != null) {
@@ -74,6 +75,7 @@ class updatesign extends SignAction {
                     if (mindistloc != null) {
                         String arrivepa = mindistsr.getTextPa().get("arrive");
                         if (arrivepa != null) {
+                            // FIXME: Conversion is done for each time even if the PIDS is the same!
                             StringBuilder strb = getArrivePaPlaceholderReplacedString(stl, linesys, mindistfpr.sta(), arrivepa);
                             p.sendMessage(strb.toString());
                         }
