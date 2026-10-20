@@ -15,6 +15,7 @@ import org.bukkit.entity.Player;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.Set;
 
@@ -44,6 +45,8 @@ class updatesign extends SignAction {
                     ArrayList<Location> loclist = getPidsLocFromPosPath(pospath);
                     refloclist.add(loclist.get(0));
                 }
+                // Cache arrival PAs for this run
+                HashMap<Location, String> arrivalpalist = new HashMap<>();
                 // For every player find the most suitable PIDS
                 for (Player p : Bukkit.getOnlinePlayers()) {
                     // Find min distance of ref point to player
@@ -73,11 +76,17 @@ class updatesign extends SignAction {
                     }
                     // Play PA to player (if found)
                     if (mindistloc != null) {
-                        String arrivepa = mindistsr.getTextPa().get("arrive");
-                        if (arrivepa != null) {
-                            // FIXME: Conversion is done for each time even if the PIDS is the same!
-                            StringBuilder strb = getArrivePaPlaceholderReplacedString(stl, linesys, mindistfpr.sta(), arrivepa);
-                            p.sendMessage(strb.toString());
+                        if (arrivalpalist.containsKey(mindistloc)) {
+                            String s = arrivalpalist.get(mindistloc);
+                            p.sendMessage(s);
+                        } else {
+                            String arrivepa = mindistsr.getTextPa().get("arrive");
+                            if (arrivepa != null) {
+                                StringBuilder strb = getArrivePaPlaceholderReplacedString(stl, linesys, mindistfpr.sta(), arrivepa);
+                                String str = strb.toString();
+                                arrivalpalist.put(mindistloc, str);
+                                p.sendMessage(str);
+                            }
                         }
                     }
                 }
