@@ -2,7 +2,10 @@ package me.fiveave.inpids;
 
 import org.bukkit.configuration.ConfigurationSection;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 
 import static me.fiveave.inpids.main.stylelist;
 
@@ -36,22 +39,34 @@ class stylerec {
         lines = stylelist.dataconfig.getIntegerList(pidsstyle + ".lines");
         loopinterval = stylelist.dataconfig.getInt(pidsstyle + ".loopinterval");
         flashinterval = stylelist.dataconfig.getInt(pidsstyle + ".flashinterval");
-        paradius = stylelist.dataconfig.getInt(pidsstyle + ".pa.radius");
+        int paradius1;
+        try {
+            paradius1 = stylelist.dataconfig.getInt(pidsstyle + ".pa.radius");
+        } catch (Exception e) {
+            paradius1 = -1;
+        }
+        paradius = paradius1;
         // Add styles (size = height * width)
         for (int i = 0; i < height * width; i++) {
             styles.add(stylelist.dataconfig.getString(pidsstyle + ".style." + i));
         }
         // Add messages
-        ConfigurationSection cs = Objects.requireNonNull(stylelist.dataconfig.getConfigurationSection(pidsstyle + ".messages"));
-        Set<String> msgset = cs.getKeys(false);
-        for (String msg : msgset) {
-            messages.put(msg, stylelist.dataconfig.getString(pidsstyle + ".messages." + msg));
+        ConfigurationSection cs = stylelist.dataconfig.getConfigurationSection(pidsstyle + ".messages");
+        Set<String> msgset;
+        if (cs != null) {
+            msgset = cs.getKeys(false);
+            for (String msg : msgset) {
+                messages.put(msg, stylelist.dataconfig.getString(pidsstyle + ".messages." + msg));
+            }
         }
         // Add text PAs
-        ConfigurationSection cs2 = Objects.requireNonNull(stylelist.dataconfig.getConfigurationSection(pidsstyle + ".pa.text"));
-        Set<String> patxtset = cs2.getKeys(false);
-        for (String txt : patxtset) {
-            textpa.put(txt, stylelist.dataconfig.getString(pidsstyle + ".pa.text." + txt));
+        ConfigurationSection cs2 = stylelist.dataconfig.getConfigurationSection(pidsstyle + ".pa.text");
+        Set<String> patxtset;
+        if (cs2 != null) {
+            patxtset = cs2.getKeys(false);
+            for (String txt : patxtset) {
+                textpa.put(txt, stylelist.dataconfig.getString(pidsstyle + ".pa.text." + txt));
+            }
         }
     }
 
