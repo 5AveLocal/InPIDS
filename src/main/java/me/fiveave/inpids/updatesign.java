@@ -56,6 +56,7 @@ class updatesign extends SignAction {
                     stylerec mindistsr = null;
                     cmds.FindPidsResult mindistfpr = null;
                     for (Location refpt : refloclist) {
+                        if (refpt.getWorld() != p.getWorld()) continue;
                         double dist = p.getLocation().distance(refpt);
                         // Skip to next if not shorter
                         if (dist >= mindist) continue;
