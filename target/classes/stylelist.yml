@@ -24,3 +24,4 @@ j3normal:
     radius: 32
     text:
       arrive: "&f往%dest_0列車即將到達。 The train for %dest_1 is arriving."
+      notinservice: "&f本班列車不會載客。 This train will not carry passengers."

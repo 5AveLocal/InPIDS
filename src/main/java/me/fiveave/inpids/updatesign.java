@@ -32,7 +32,8 @@ class updatesign extends SignAction {
         if (stat != null && stat.equals("arrive")) {
             // Initial setup
             int thisstaindex = stl.getStaIndex(location);
-            String staplat = stl.getStacode().get(thisstaindex) + "." + stl.getPlat().get(thisstaindex);
+            String stacode = stl.getStacode().get(thisstaindex);
+            String staplat = stacode + "." + stl.getPlat().get(thisstaindex);
             String locpath = staplat + ".locations";
             ConfigurationSection cs = stapidslist.dataconfig.getConfigurationSection(locpath);
             Set<String> pidsset;
@@ -82,7 +83,9 @@ class updatesign extends SignAction {
                             String s = arrivalpalist.get(mindistloc);
                             p.sendMessage(s);
                         } else {
-                            String arrivepa = mindistsr.getTextPa().get("arrive");
+                            int terminusindex = stl.getSize() - 1;
+                            boolean atterminus = stl.getStacode().get(terminusindex).equals(stacode);
+                            String arrivepa = atterminus ? mindistsr.getTextPa().get("notinservice") : mindistsr.getTextPa().get("arrive");
                             if (arrivepa != null) {
                                 StringBuilder strb = getArrivePaPlaceholderReplacedString(stl, linesys, mindistfpr.sta(), arrivepa);
                                 String str = strb.toString();
